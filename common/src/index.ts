@@ -1,0 +1,43 @@
+import * as timer from './timer';
+import * as log from './log';
+import * as buffer from './buffer';
+import * as toArray from './to-array';
+import * as arrayIndex from './array-index';
+import * as arraySource from './array-source';
+import * as random from './random';
+import * as booleanSource from './boolean-source';
+import * as jsonSource from './json-source';
+import * as numberSource from './number-source';
+import * as stringSource from './string-source';
+import * as fileSource from './file-source';
+import * as compare from './compare';
+import * as property from './property';
+import * as syncEvent from './sync-event';
+import * as syncData from './sync-data';
+import * as delay from './delay';
+import * as toVector from './to-vector';
+import * as numberRange from './number-range';
+import * as globalEvent from './global-event';
+
+export namespace StandardNodes.Common {
+  export import Timer = timer.Timer;
+  export import Log = log.Log;
+  export import Buffer = buffer.Buffer;
+  export import ToArray = toArray.ToArray;
+  export import ArrayIndex = arrayIndex.ArrayIndex;
+  export import ArraySource = arraySource.ArraySource;
+  export import BooleanSource = booleanSource.BooleanSource;
+  export import JsonSource = jsonSource.JsonSource;
+  export import NumberSource = numberSource.NumberSource;
+  export import StringSource = stringSource.StringSource;
+  export import FileSource = fileSource.FileSource;
+  export import Random = random.Random;
+  export import Compare = compare.Compare;
+  export import Property = property.Property;
+  export import SyncEvent = syncEvent.SyncEvent;
+  export import SyncData = syncData.SyncData;
+  export import Delay = delay.Delay;
+  export import ToVector = toVector.ToVector;
+  export import NumberRange = numberRange.NumberRange;
+  export import GlobalEvent = globalEvent.GlobalEvent;
+}
