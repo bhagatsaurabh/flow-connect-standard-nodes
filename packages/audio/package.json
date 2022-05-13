@@ -1,0 +1,31 @@
+{
+  "name": "@flow-connect/audio",
+  "version": "1.0.0",
+  "description": "Standard Audio nodes collection for FlowConnect",
+  "keywords": [
+    "flow-connect",
+    "standard-nodes",
+    "audio",
+    "standard-audio",
+    "flow-connect-audio"
+  ],
+  "author": "saurabh-prosoft <saurabhbhagat98die@gmail.com>",
+  "homepage": "https://flow-connect.saurabhagat.me/reference/standard-nodes/audio.html",
+  "license": "MIT",
+  "main": "dist/cjs/index.js",
+  "directories": {
+    "lib": "dist"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saurabh-prosoft/flow-connect-standard-nodes.git",
+    "directory": "packages/audio"
+  },
+  "scripts": {},
+  "bugs": {
+    "url": "https://github.com/saurabh-prosoft/flow-connect-standard-nodes/issues"
+  }
+}

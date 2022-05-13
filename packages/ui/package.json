@@ -1,0 +1,31 @@
+{
+  "name": "@flow-connect/ui",
+  "version": "1.0.0",
+  "description": "Standard UI nodes collection for FlowConnect",
+  "keywords": [
+    "flow-connect",
+    "standard-nodes",
+    "ui",
+    "standard-ui",
+    "flow-connect-ui"
+  ],
+  "author": "saurabh-prosoft <saurabhbhagat98die@gmail.com>",
+  "homepage": "https://flow-connect.saurabhagat.me/reference/standard-nodes/ui.html",
+  "license": "MIT",
+  "main": "dist/cjs/index.js",
+  "directories": {
+    "lib": "dist"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saurabh-prosoft/flow-connect-standard-nodes.git",
+    "directory": "packages/ui"
+  },
+  "scripts": {},
+  "bugs": {
+    "url": "https://github.com/saurabh-prosoft/flow-connect-standard-nodes/issues"
+  }
+}

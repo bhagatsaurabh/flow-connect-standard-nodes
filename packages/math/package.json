@@ -1,0 +1,31 @@
+{
+  "name": "@flow-connect/math",
+  "version": "1.0.0",
+  "description": "Standard Math nodes collection for FlowConnect",
+  "keywords": [
+    "flow-connect",
+    "standard-nodes",
+    "math",
+    "standard-math",
+    "flow-connect-math"
+  ],
+  "author": "saurabh-prosoft <saurabhbhagat98die@gmail.com>",
+  "homepage": "https://flow-connect.saurabhagat.me/reference/standard-nodes/math.html",
+  "license": "MIT",
+  "main": "dist/cjs/index.js",
+  "directories": {
+    "lib": "dist"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saurabh-prosoft/flow-connect-standard-nodes.git",
+    "directory": "packages/math"
+  },
+  "scripts": {},
+  "bugs": {
+    "url": "https://github.com/saurabh-prosoft/flow-connect-standard-nodes/issues"
+  }
+}
