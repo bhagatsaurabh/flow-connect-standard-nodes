@@ -13,6 +13,7 @@
   "homepage": "https://flow-connect.saurabhagat.me/reference/standard-nodes/audio.html",
   "license": "MIT",
   "main": "dist/cjs/index.js",
+  "types": "dist/cjs/index.d.ts",
   "directories": {
     "lib": "dist"
   },
