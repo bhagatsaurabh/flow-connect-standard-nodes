@@ -12,6 +12,13 @@
   "author": "saurabh-prosoft <saurabhbhagat98die@gmail.com>",
   "homepage": "https://flow-connect.saurabhagat.me/reference/standard-nodes/audio.html",
   "license": "MIT",
+  "scripts": {
+    "prebuild": "npx shx rm -rf dist",
+    "build": "npm run build:umd && npm run build:cjs && npm run build:esm",
+    "build:umd": "webpack --config=webpack.prod.js",
+    "build:cjs": "tsc -b",
+    "build:esm": "tsc -b -m es6 --outDir dist/esm"
+  },
   "main": "dist/cjs/index.js",
   "types": "dist/cjs/index.d.ts",
   "directories": {
@@ -25,7 +32,6 @@
     "url": "git+https://github.com/saurabh-prosoft/flow-connect-standard-nodes.git",
     "directory": "packages/audio"
   },
-  "scripts": {},
   "bugs": {
     "url": "https://github.com/saurabh-prosoft/flow-connect-standard-nodes/issues"
   }
