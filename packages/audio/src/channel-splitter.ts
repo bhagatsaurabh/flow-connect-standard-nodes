@@ -1,8 +1,5 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Terminal, TerminalType } from "../../core/terminal";
-import { Node } from "../../core/node";
+import { Flow, Vector, Node, Terminal, TerminalType } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
 
 export class ChannelSplitter extends Node {
   splitter: ChannelSplitterNode;

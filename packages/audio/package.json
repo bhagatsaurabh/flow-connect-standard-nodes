@@ -34,5 +34,8 @@
   },
   "bugs": {
     "url": "https://github.com/saurabh-prosoft/flow-connect-standard-nodes/issues"
+  },
+  "devDependencies": {
+    "@types/offscreencanvas": "^2019.6.4"
   }
 }

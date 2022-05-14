@@ -1,11 +1,8 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { clamp } from "../../utils/utils";
-import { Node } from "../../core/node";
-import { FlowConnectState } from "../../flow-connect";
-import { Constant } from "../../resource/constants";
-import { InputType, Input, Toggle } from "../../ui/index";
+import { Flow, Vector, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { clamp } from "flow-connect/utils";
+import { FlowConnectState } from "flow-connect";
+import { InputType, Input, Toggle } from "flow-connect/ui";
 
 export class Metronome extends Node {
   autoToggle: Toggle;
@@ -81,9 +78,9 @@ export class Metronome extends Node {
     const f = this.state.frequency;
     for (let i = 0; i < durationFrames; i++) {
       channel[i] = Math.sin(phase) * amp;
-      phase += Constant.TAU * f / ctx.sampleRate;
-      if (phase > Constant.TAU) {
-        phase -= Constant.TAU;
+      phase += 2 * Math.PI * f / ctx.sampleRate;
+      if (phase > 2 * Math.PI) {
+        phase -= 2 * Math.PI;
       }
       amp -= 1 / durationFrames;
     }

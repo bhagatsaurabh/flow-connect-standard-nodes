@@ -1,10 +1,7 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { clamp } from "../../utils/utils";
-import { Node } from '../../core/node';
-import { Align } from "../../common/enums";
-import { Slider, Display, Label } from "../../ui/index";
+import { Flow, Node, Vector } from "flow-connect/core";
+import { Align, NodeCreatorOptions } from "flow-connect/common";
+import { clamp } from "flow-connect/utils";
+import { Display, Label, Slider } from "flow-connect/ui";
 
 export class WaveformAnalyser extends Node {
   fftSizeSlider: Slider;

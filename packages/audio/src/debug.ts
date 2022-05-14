@@ -1,7 +1,5 @@
-import { Flow, FlowState } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Node } from "../../core/node";
+import { Flow, FlowState, Vector, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
 
 export class Debug extends Node {
   inGain: GainNode;

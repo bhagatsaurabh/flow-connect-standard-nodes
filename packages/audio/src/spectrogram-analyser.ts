@@ -1,11 +1,7 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { clamp, denormalize, normalize } from "../../utils/utils";
-import { Node } from '../../core/node';
-import { Align } from "../../common/enums";
-import { Color } from "../../core/color";
-import { Slider, CanvasType, Display, Label, Select } from "../../ui/index";
+import { Flow, Vector, Node, Color } from "flow-connect/core";
+import { NodeCreatorOptions, Align } from "flow-connect/common";
+import { clamp, denormalize, normalize } from "flow-connect/utils";
+import { Slider, CanvasType, Display, Label, Select } from "flow-connect/ui";
 
 export class SpectrogramAnalyser extends Node {
   colorScaleSelect: Select;

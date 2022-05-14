@@ -1,9 +1,7 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { denormalize } from "../../utils/utils";
-import { Node } from "../../core/node";
-import { InputType, Input, Envelope, Toggle } from "../../ui/index";
+import { Flow, Node, Vector } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { denormalize } from "flow-connect/utils";
+import { InputType, Input, Envelope, Toggle } from "flow-connect/ui";
 
 export class Automate extends Node {
   envelopeInput: Envelope;

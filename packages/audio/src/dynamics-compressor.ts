@@ -1,9 +1,7 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { clamp } from "../../utils/utils";
-import { Node } from "../../core/node";
-import { Toggle } from "../../ui/index";
+import { Flow, Vector, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { clamp } from "flow-connect/utils";
+import { Toggle } from "flow-connect/ui";
 
 export class DynamicsCompressor extends Node {
   bypassToggle: Toggle;

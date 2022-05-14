@@ -1,10 +1,8 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { clamp } from "../../utils/utils";
-import { Node } from '../../core/node';
-import { InputType, Input, Slider, Toggle } from "../../ui/index";
-let Tuna = require('../../lib/tuna.js');
+import { Flow, Vector, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { clamp } from "flow-connect/utils";
+import { InputType, Input, Slider, Toggle } from "flow-connect/ui";
+let Tuna = require('../lib/tuna.js');
 
 export class TremoloEffect extends Node {
   intensitySlider: Slider;

@@ -1,9 +1,7 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { clamp, denormalize } from "../../utils/utils";
-import { Node } from '../../core/node';
-import { Toggle, Slider2D, Slider, Input, InputType } from "../../ui/index";
+import { Flow, Vector, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { clamp, denormalize } from "flow-connect/utils";
+import { Toggle, Slider2D, Slider, Input, InputType } from "flow-connect/ui";
 
 export class SpatialPanner extends Node {
   panSlider2D: Slider2D;

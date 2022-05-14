@@ -1,10 +1,8 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { clamp, isInRange } from "../../utils/utils";
-import { Node } from '../../core/node';
-import { Align } from "../../common/enums";
-import { Toggle, VSlider, Stack } from "../../ui/index";
+import { Flow, Vector, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { clamp, isInRange } from "flow-connect/utils";
+import { Align } from "flow-connect/common";
+import { Toggle, VSlider, Stack } from "flow-connect/ui";
 
 export class Equalizer extends Node {
   vSliders: VSlider[] = [];
