@@ -1,5 +1,9 @@
 ## @flow-connect/audio
 
+[<img alt="npm (scoped)" src="https://img.shields.io/npm/v/@flow-connect/audio?style=flat-square" />](https://www.npmjs.com/package/@flow-connect/audio)
+[<img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/saurabh-prosoft/flow-connect-standard-nodes/audio?style=flat-square" />](https://github.com/saurabh-prosoft/flow-connect-standard-nodes/actions/workflows/audio.yml)
+[<img alt="npm bundle size (scoped)" src="https://img.shields.io/bundlephobia/min/@flow-connect/audio?style=flat-square">](https://bundlephobia.com/package/@flow-connect/audio)
+
 <br/>
 
 > Custom nodes for audio processing using [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)

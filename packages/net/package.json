@@ -2,6 +2,9 @@
   "name": "@flow-connect/net",
   "version": "1.0.0",
   "description": "Standard Net nodes collection for FlowConnect",
+  "publishConfig": {
+    "access": "public"
+  },
   "main": "dist/cjs/index.js",
   "type": "module",
   "types": "dist/types/index.d.ts",
@@ -29,7 +32,8 @@
     "build:umd": "webpack --config=webpack.prod.js",
     "build:cjs": "tsc",
     "build:esm": "tsc -m es6 --outDir ./dist/esm",
-    "build:types": "tsc --outDir ./dist/types --declaration true --emitDeclarationOnly true"
+    "build:types": "tsc --outDir ./dist/types --declaration true --emitDeclarationOnly true",
+    "prepublishOnly": "npm run build"
   },
   "directories": {
     "lib": "dist"
