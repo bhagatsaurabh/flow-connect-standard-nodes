@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - 'packages/common/**'
+  push:
+    branches: [main]
+    paths:
+      - "packages/common/**"
   workflow_dispatch:
 
 jobs:

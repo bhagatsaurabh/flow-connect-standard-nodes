@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - 'packages/visual/**'
+  push:
+    branches: [main]
+    paths:
+      - "packages/visual/**"
   workflow_dispatch:
 
 jobs:
