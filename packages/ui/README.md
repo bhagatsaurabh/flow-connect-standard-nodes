@@ -9,7 +9,7 @@
 ### Custom Nodes
 
 - [Dial](https://flow-connect.saurabhagat.me/reference/standard-nodes/ui/dial.html) <br/>
-  #### A simple dial/knob.
+  A simple dial/knob.
 
 <br/>
 

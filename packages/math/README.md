@@ -9,13 +9,13 @@
 ### Custom Nodes
 
 - [Abs](https://flow-connect.saurabhagat.me/reference/standard-nodes/math/abs.html) <br/>
-  #### Outputs absolute value for the input, input can be an array of values, in which case output will also be an array of values.
+  Outputs absolute value for the input, input can be an array of values, in which case output will also be an array of values.
 - [Average](https://flow-connect.saurabhagat.me/reference/standard-nodes/math/average.html) <br/>
-  #### Performs an 'average' function on input array and outputs scalar value.
+  Performs an 'average' function on input array and outputs scalar value.
 - [Func](https://flow-connect.saurabhagat.me/reference/standard-nodes/math/func.html) <br/>
-  #### Transforms input value or array of values using the  math function provided as prop to node for e.g. `sin(t) + 0.2cos(2.8t)`, where `t` is the input value or current value from input array.
+  Transforms input value or array of values using the  math function provided as prop to node for e.g. `sin(t) + 0.2cos(2.8t)`, where `t` is the input value or current value from input array.
 - [Normalize](https://flow-connect.saurabhagat.me/reference/standard-nodes/math/normalize.html) <br/>
-  #### Normalizes the input value or array based on the mode `relative` or `absolute`, if input is an array, default mode is `relative` in which case normalization parameters (min and max) will be taken as min/max value in array, in `absolute` mode min/max needs to be specified as Node props.
+  Normalizes the input value or array based on the mode `relative` or `absolute`, if input is an array, default mode is `relative` in which case normalization parameters (min and max) will be taken as min/max value in array, in `absolute` mode min/max needs to be specified as Node props.
 - and much more...!
 
 <br/>

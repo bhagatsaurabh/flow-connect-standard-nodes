@@ -9,7 +9,7 @@
 ### Custom Nodes
 
 - [API](https://flow-connect.saurabhagat.me/reference/standard-nodes/net/api.html) <br/>
-  #### Makes an API call to the endpoint specified as Node prop when a trigger event is received.
+  Makes an API call to the endpoint specified as Node prop when a trigger event is received.
 
 <br/>
 
