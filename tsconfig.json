@@ -2,17 +2,17 @@
   "compileOnSave": false,
   "compilerOptions": {
     "moduleResolution": "node",
-    "target": "es2020",
+    "target": "es6",
     "module": "commonjs",
     "lib": [
-      "ES2020",
+      "ES6",
       "DOM"
     ],
     "noImplicitAny": true,
     "removeComments": true,
     "preserveConstEnums": true,
-    "sourceMap": true,
-    "declaration": true,
+    "sourceMap": false,
+    "declaration": false,
     "noLib": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,

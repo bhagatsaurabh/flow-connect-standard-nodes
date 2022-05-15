@@ -2,7 +2,6 @@ import { Flow, Vector, Node } from "flow-connect/core";
 import { NodeCreatorOptions } from "flow-connect/common";
 import { clamp } from "flow-connect/utils";
 import { InputType, Input, Slider, Toggle } from "flow-connect/ui";
-let Tuna = require('../lib/tuna.js');
 
 export class PingPongEffect extends Node {
   delayLeftSlider: Slider;
@@ -30,8 +29,6 @@ export class PingPongEffect extends Node {
         state: options.state ? { ...PingPongEffect.DefaultState, ...options.state } : PingPongEffect.DefaultState
       }
     )
-
-    if (!(window as any).__tuna__) (window as any).__tuna__ = new Tuna(flow.flowConnect.audioContext);
 
     this.pingPong = new (window as any).__tuna__.PingPongDelay();
     this.inputs[0].ref = this.outputs[0].ref = this.pingPong;

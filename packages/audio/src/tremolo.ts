@@ -2,7 +2,6 @@ import { Flow, Vector, Node } from "flow-connect/core";
 import { NodeCreatorOptions } from "flow-connect/common";
 import { clamp } from "flow-connect/utils";
 import { InputType, Input, Slider, Toggle } from "flow-connect/ui";
-let Tuna = require('../lib/tuna.js');
 
 export class TremoloEffect extends Node {
   intensitySlider: Slider;
@@ -29,8 +28,6 @@ export class TremoloEffect extends Node {
         state: options.state ? { ...TremoloEffect.DefaultState, ...options.state } : TremoloEffect.DefaultState
       }
     )
-
-    if (!(window as any).__tuna__) (window as any).__tuna__ = new Tuna(flow.flowConnect.audioContext);
 
     this.tremolo = new (window as any).__tuna__.Tremolo();
     this.inputs[0].ref = this.outputs[0].ref = this.tremolo;

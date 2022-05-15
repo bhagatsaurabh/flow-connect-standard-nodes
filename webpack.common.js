@@ -1,15 +1,9 @@
-const path = require('path');
-const TerserPlugin = require('terser-webpack-plugin');
+import TerserPlugin from "terser-webpack-plugin";
+import ResolveTypeScriptPlugin from "resolve-typescript-plugin";
 
-module.exports = {
+export default {
   mode: 'production',
   devtool: 'source-map',
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js',
-    libraryTarget: 'umd',
-    umdNamedDefine: true,
-  },
   performance: {
     hints: false,
     maxEntrypointSize: 249856,
@@ -20,7 +14,8 @@ module.exports = {
     minimizer: [new TerserPlugin()],
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js'],
+    extensions: ['.js'],
+    plugins: [new ResolveTypeScriptPlugin()]
   },
   module: {
     rules: [

@@ -2,31 +2,9 @@
   "name": "@flow-connect/audio",
   "version": "1.0.0",
   "description": "Standard Audio nodes collection for FlowConnect",
-  "keywords": [
-    "flow-connect",
-    "standard-nodes",
-    "audio",
-    "standard-audio",
-    "flow-connect-audio"
-  ],
-  "author": "saurabh-prosoft <saurabhbhagat98die@gmail.com>",
-  "homepage": "https://flow-connect.saurabhagat.me/reference/standard-nodes/audio.html",
-  "license": "MIT",
-  "scripts": {
-    "prebuild": "npx shx rm -rf dist",
-    "build": "npm run build:umd && npm run build:cjs && npm run build:esm",
-    "build:umd": "webpack --config=webpack.prod.js",
-    "build:cjs": "tsc -b",
-    "build:esm": "tsc -b -m es6 --outDir dist/esm"
-  },
   "main": "dist/cjs/index.js",
-  "types": "dist/cjs/index.d.ts",
-  "directories": {
-    "lib": "dist"
-  },
-  "files": [
-    "dist"
-  ],
+  "type": "module",
+  "types": "dist/types/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/saurabh-prosoft/flow-connect-standard-nodes.git",
@@ -35,7 +13,49 @@
   "bugs": {
     "url": "https://github.com/saurabh-prosoft/flow-connect-standard-nodes/issues"
   },
-  "devDependencies": {
-    "@types/offscreencanvas": "^2019.6.4"
+  "author": "saurabh-prosoft <saurabhbhagat98die@gmail.com>",
+  "homepage": "https://flow-connect.saurabhagat.me/reference/standard-nodes/audio.html",
+  "license": "MIT",
+  "keywords": [
+    "flow-connect",
+    "standard-nodes",
+    "audio",
+    "standard-audio",
+    "flow-connect-audio"
+  ],
+  "scripts": {
+    "prebuild": "npx shx rm -rf dist",
+    "build": "npm run build:umd && npm run build:cjs && npm run build:esm && npm run build:types",
+    "build:umd": "webpack --config=webpack.prod.js",
+    "build:cjs": "tsc",
+    "build:esm": "tsc -m es6 --outDir ./dist/esm",
+    "build:types": "tsc --outDir ./dist/types --declaration true --emitDeclarationOnly true"
+  },
+  "directories": {
+    "lib": "dist"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./*": {
+      "import": "./dist/esm/*",
+      "require": "./dist/cjs/*"
+    },
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/types/index.d.ts"
+      ]
+    }
+  },
+  "browser": "./dist/audio.js",
+  "peerDependencies": {
+    "flow-connect": "^1.0.12"
   }
 }

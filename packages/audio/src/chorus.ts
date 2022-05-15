@@ -2,7 +2,6 @@ import { Flow, Vector, Node } from "flow-connect/core";
 import { NodeCreatorOptions } from "flow-connect/common";
 import { clamp } from "flow-connect/utils";
 import { InputType, Input, Slider, Toggle } from "flow-connect/ui";
-let Tuna = require('../lib/tuna.js');
 
 export class ChorusEffect extends Node {
   delaySlider: Slider;
@@ -31,8 +30,6 @@ export class ChorusEffect extends Node {
         state: options.state ? { ...ChorusEffect.DefaultState, ...options.state } : ChorusEffect.DefaultState
       }
     )
-
-    if (!(window as any).__tuna__) (window as any).__tuna__ = new Tuna(flow.flowConnect.audioContext);
 
     this.chorus = new (window as any).__tuna__.Chorus();
     this.inputs[0].ref = this.outputs[0].ref = this.chorus;

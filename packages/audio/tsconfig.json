@@ -1,13 +1,12 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "composite": true,
     "rootDir": "./src",
-    "outDir": "./dist",
-    "declarationMap": true
+    "outDir": "./dist/cjs",
+    "declarationMap": false,
+    "declaration": false
   },
   "include": [
     "./src",
-    "./lib/tuna.js"
   ]
 }

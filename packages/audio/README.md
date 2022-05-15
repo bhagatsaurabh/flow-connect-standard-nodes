@@ -1,11 +1,1 @@
-# `audio`
-
-> TODO: description
-
-## Usage
-
-```
-const audio = require('audio');
-
-// TODO: DEMONSTRATE API
-```
+<img alt="" src="" /><h2>@flow-connect/audio</h2>
