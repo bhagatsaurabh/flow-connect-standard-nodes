@@ -2,7 +2,7 @@ name: Package-Audio
 
 on:
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       - 'packages/audio/**'
   workflow_dispatch:

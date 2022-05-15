@@ -2,7 +2,7 @@ name: Package-Math
 
 on:
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       - 'packages/math/**'
   workflow_dispatch:

@@ -2,7 +2,7 @@ name: Package-Visual
 
 on:
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       - 'packages/visual/**'
   workflow_dispatch:

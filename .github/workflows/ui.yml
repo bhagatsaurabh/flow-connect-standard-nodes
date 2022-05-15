@@ -2,7 +2,7 @@ name: Package-UI
 
 on:
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       - 'packages/ui/**'
   workflow_dispatch:
