@@ -1,10 +1,7 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { GlobalEventType } from "../../common/enums";
-import { Node } from "../../core/node";
-import { get, getNewUUID } from "../../utils/utils";
-import { InputType, Input } from "../../ui/index";
+import { Flow, Vector, Node } from "flow-connect/core";
+import { NodeCreatorOptions, GlobalEventType } from "flow-connect/common";
+import { get, getNewUUID } from "flow-connect/utils";
+import { InputType, Input } from "flow-connect/ui";
 
 export class GlobalEvent extends Node {
   eventInput: Input;

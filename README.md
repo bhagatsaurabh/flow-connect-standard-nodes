@@ -1,4 +1,4 @@
-# @flow-connect/\* Standard Nodes
+# Standard Nodes for [flow-connect](https://github.com/saurabh-prosoft/flow-connect)
 
 A collection of custom nodes extending <img src="" alt="" /> [FlowConnect's](https://flow-connect.saurabhagat.me) [Node](https://flow-connect.saurabhagat.me/reference/api/classes/node.html) architecture.
 

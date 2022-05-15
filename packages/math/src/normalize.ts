@@ -1,9 +1,7 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { normalize } from "../../utils/utils";
-import { Node } from "../../core/node";
-import { InputType } from "../../ui/index";
+import { Flow, Vector, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { normalize } from "flow-connect/utils";
+import { InputType } from "flow-connect/ui";
 
 export class Normalize extends Node {
   min = Number.MAX_SAFE_INTEGER;

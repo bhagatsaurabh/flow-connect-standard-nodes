@@ -1,9 +1,6 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Color } from "../../core/color";
-import { Node } from "../../core/node";
-import { InputType, DisplayStyle } from "../../ui/index";
+import { Flow, Vector, Color, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { InputType, DisplayStyle } from "flow-connect/ui";
 
 export class LineChartMini extends Node {
 

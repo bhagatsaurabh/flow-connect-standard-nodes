@@ -1,13 +1,7 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Terminal, TerminalType } from "../../core/terminal";
-import { Evaluator } from "../../utils/evaluator";
-import { Log } from "../../utils/logger";
-import { Parser } from "../../utils/parser";
-import { Token, TokenType } from "../../utils/lexer";
-import { Node } from "../../core/node";
-import { InputType, Input, Button } from "../../ui/index";
+import { Flow, Vector, Terminal, TerminalType, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { Evaluator, Token, TokenType, Parser, Log } from "flow-connect/utils";
+import { InputType, Input, Button } from "flow-connect/ui";
 
 export class Func extends Node {
   addVarButton: Button

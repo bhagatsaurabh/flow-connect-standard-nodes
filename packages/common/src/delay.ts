@@ -1,9 +1,7 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { List, ListNode } from "../../utils/linked-list";
-import { Node } from "../../core/node";
-import { InputType } from "../../ui/index";
+import { Flow, Vector, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { List, ListNode } from "flow-connect/utils";
+import { InputType } from "flow-connect/ui";
 
 interface BufferedEvent {
   data: any;

@@ -1,7 +1,21 @@
 {
   "name": "@flow-connect/visual",
   "version": "1.0.0",
-  "description": "Standard Visual nodes collection for FlowConnect",
+  "description": "Standard visualization nodes collection for FlowConnect",
+  "main": "dist/cjs/index.js",
+  "type": "module",
+  "types": "dist/types/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/saurabh-prosoft/flow-connect-standard-nodes.git",
+    "directory": "packages/visual"
+  },
+  "bugs": {
+    "url": "https://github.com/saurabh-prosoft/flow-connect-standard-nodes/issues"
+  },
+  "author": "saurabh-prosoft <saurabhbhagat98die@gmail.com>",
+  "homepage": "https://flow-connect.saurabhagat.me/reference/standard-nodes/visual.html",
+  "license": "MIT",
   "keywords": [
     "flow-connect",
     "standard-nodes",
@@ -9,24 +23,39 @@
     "standard-visual",
     "flow-connect-visual"
   ],
-  "author": "saurabh-prosoft <saurabhbhagat98die@gmail.com>",
-  "homepage": "https://flow-connect.saurabhagat.me/reference/standard-nodes/visual.html",
-  "license": "MIT",
-  "main": "dist/cjs/index.js",
-  "types": "dist/cjs/index.d.ts",
+  "scripts": {
+    "prebuild": "npx shx rm -rf dist",
+    "build": "npm run build:umd && npm run build:cjs && npm run build:esm && npm run build:types",
+    "build:umd": "webpack --config=webpack.prod.js",
+    "build:cjs": "tsc",
+    "build:esm": "tsc -m es6 --outDir ./dist/esm",
+    "build:types": "tsc --outDir ./dist/types --declaration true --emitDeclarationOnly true"
+  },
   "directories": {
     "lib": "dist"
   },
   "files": [
     "dist"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/saurabh-prosoft/flow-connect-standard-nodes.git",
-    "directory": "packages/visual"
+  "exports": {
+    "./*": {
+      "import": "./dist/esm/*",
+      "require": "./dist/cjs/*"
+    },
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
   },
-  "scripts": {},
-  "bugs": {
-    "url": "https://github.com/saurabh-prosoft/flow-connect-standard-nodes/issues"
+  "typesVersions": {
+    "*": {
+      "*": [
+        "dist/types/index.d.ts"
+      ]
+    }
+  },
+  "browser": "./dist/visual.js",
+  "peerDependencies": {
+    "flow-connect": "^1.0.12"
   }
 }

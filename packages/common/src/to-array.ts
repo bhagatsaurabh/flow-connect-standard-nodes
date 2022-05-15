@@ -1,9 +1,6 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Terminal, TerminalType } from "../../core/terminal";
-import { Node } from "../../core/node";
-import { Button } from "../../ui/index";
+import { Flow, Vector, Terminal, TerminalType, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { Button } from "flow-connect/ui";
 
 export class ToArray extends Node {
   addButton: Button;

@@ -1,9 +1,6 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Node } from "../../core/node";
-import { Align } from "../../common/enums";
-import { InputType, Input, Toggle, HorizontalLayout, Stack } from "../../ui/index";
+import { Flow, Vector, Node } from "flow-connect/core";
+import { NodeCreatorOptions, Align } from "flow-connect/common";
+import { InputType, Input, Toggle, HorizontalLayout, Stack } from "flow-connect/ui";
 
 export class ArraySource extends Node {
   arrayInput: Input;

@@ -1,8 +1,6 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Node } from "../../core/node";
-import { InputType, Input } from "../../ui/index";
+import { Flow, Vector, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { InputType, Input } from "flow-connect/ui";
 
 export class Buffer extends Node {
   sizeInput: Input;

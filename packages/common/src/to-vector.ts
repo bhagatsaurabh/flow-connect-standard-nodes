@@ -1,8 +1,6 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Log } from "../../utils/logger";
-import { Node } from "../../core/node";
+import { Flow, Vector, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { Log } from "flow-connect/utils";
 
 export class ToVector extends Node {
   constructor(flow: Flow, options: NodeCreatorOptions = {}) {

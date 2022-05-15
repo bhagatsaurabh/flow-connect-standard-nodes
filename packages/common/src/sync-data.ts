@@ -1,9 +1,6 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Terminal, TerminalType } from "../../core/terminal";
-import { Node } from "../../core/node";
-import { RadioGroup, Button } from "../../ui/index";
+import { Flow, Vector, Terminal, TerminalType, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { RadioGroup, Button } from "flow-connect/ui";
 
 export class SyncData extends Node {
   syncTypeInput: RadioGroup;

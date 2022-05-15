@@ -1,9 +1,6 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Align } from "../../common/enums";
-import { Node } from "../../core/node";
-import { DialStyle } from "../../ui/index";
+import { Flow, Vector, Node } from "flow-connect/core";
+import { NodeCreatorOptions, Align } from "flow-connect/common";
+import { DialStyle } from "flow-connect/ui";
 
 export class Dial extends Node {
 

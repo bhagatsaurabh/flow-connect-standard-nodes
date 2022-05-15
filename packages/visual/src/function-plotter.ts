@@ -1,9 +1,7 @@
-import { Flow } from "../../core/flow";
-import { Vector } from "../../core/vector";
-import { NodeCreatorOptions } from "../../common/interfaces";
-import { Node } from "../../core/node";
-import { get } from "../../utils/utils";
-import { Display, Toggle } from "../../ui/index";
+import { Flow, Vector, Node } from "flow-connect/core";
+import { NodeCreatorOptions } from "flow-connect/common";
+import { get } from "flow-connect/utils";
+import { Display, Toggle } from "flow-connect/ui";
 
 export class FunctionPlotter extends Node {
   display: Display;
