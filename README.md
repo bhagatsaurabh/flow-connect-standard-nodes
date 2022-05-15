@@ -27,5 +27,5 @@ npm run build
 - Build a specific package
 
 ```shell
-lerna run --scope "@flow-connect/<package-name" build --stream
+lerna run --scope "@flow-connect/<package-name>" build --stream
 ```
