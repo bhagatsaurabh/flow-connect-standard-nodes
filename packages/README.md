@@ -13,4 +13,16 @@
 
 <br/>
 
+## Install
+
+```shell
+npm install @flow-connect/<package name>
+```
+or
+```shell
+yarn add @flow-connect/<package name>
+```
+
+<br/>
+
 #### Check individual packages for details.
