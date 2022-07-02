@@ -1,6 +1,6 @@
 {
   "name": "@flow-connect/visual",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Standard visualization nodes collection for FlowConnect",
   "publishConfig": {
     "access": "public"
