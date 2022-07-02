@@ -1,6 +1,6 @@
 {
   "name": "@flow-connect/net",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Standard Net nodes collection for FlowConnect",
   "publishConfig": {
     "access": "public"
