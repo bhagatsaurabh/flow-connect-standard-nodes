@@ -1,7 +1,6 @@
 import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
+import { NodeCreatorOptions, Align } from "flow-connect/common";
 import { clamp, isInRange } from "flow-connect/utils";
-import { Align } from "flow-connect/common";
 import { Toggle, VSlider, Stack } from "flow-connect/ui";
 
 export class Equalizer extends Node {
