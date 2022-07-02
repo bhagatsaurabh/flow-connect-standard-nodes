@@ -24,7 +24,7 @@ export default {
     maxAssetSize: 249856,
   },
   optimization: {
-    minimize: false,
+    minimize: true,
     minimizer: [new TerserPlugin()],
   },
   resolve: {
