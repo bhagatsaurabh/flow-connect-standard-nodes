@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "postinstall": "npm run bootstrap",
-    "bootstrap": "npx lerna bootstrap --hoist",
+    "bootstrap": "npx lerna@4 bootstrap --hoist",
     "build": "lerna run build --parallel",
     "publish": "npm run build && lerna publish"
   },
