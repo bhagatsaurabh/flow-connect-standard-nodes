@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "postinstall": "npm run bootstrap",
-    "bootstrap": "npx lerna@4 bootstrap --hoist",
+    "bootstrap": "npx lerna bootstrap --hoist",
     "build": "lerna run build --parallel",
     "publish": "npm run build && lerna publish"
   },
@@ -16,7 +16,7 @@
     "eslint": "^8.15.0",
     "eslint-config-google": "^0.14.0",
     "flow-connect": "^1.0.13",
-    "lerna": "^4.0.0",
+    "lerna": "^5.6.2",
     "resolve-typescript-plugin": "^1.2.0",
     "terser-webpack-plugin": "^5.3.1",
     "ts-loader": "^9.3.0",
