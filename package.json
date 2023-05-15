@@ -15,7 +15,7 @@
     "@typescript-eslint/parser": "^5.23.0",
     "eslint": "^8.15.0",
     "eslint-config-google": "^0.14.0",
-    "flow-connect": "^1.0.12",
+    "flow-connect": "^1.0.13",
     "lerna": "^4.0.0",
     "resolve-typescript-plugin": "^1.2.0",
     "terser-webpack-plugin": "^5.3.1",

@@ -1,6 +1,6 @@
 {
   "name": "@flow-connect/visual",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Standard visualization nodes collection for FlowConnect",
   "publishConfig": {
     "access": "public"
@@ -60,6 +60,6 @@
   },
   "browser": "./dist/visual.js",
   "peerDependencies": {
-    "flow-connect": "^1.0.12"
+    "flow-connect": "^1.0.13"
   }
 }

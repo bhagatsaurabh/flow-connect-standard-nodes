@@ -1,6 +1,6 @@
 {
   "name": "@flow-connect/net",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Standard Net nodes collection for FlowConnect",
   "publishConfig": {
     "access": "public"
@@ -60,6 +60,6 @@
   },
   "browser": "./dist/net.js",
   "peerDependencies": {
-    "flow-connect": "^1.0.12"
+    "flow-connect": "^1.0.13"
   }
 }
