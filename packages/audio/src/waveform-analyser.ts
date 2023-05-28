@@ -1,7 +1,7 @@
-import { Flow, Node, NodeOptions, NodeStyle, TerminalType, Vector } from "flow-connect/core";
+import { Align, DisplayOptions, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect";
+import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
 import { Display, Label, Slider } from "flow-connect/ui";
-import { Align, DisplayOptions, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect";
 
 export class WaveformAnalyser extends Node {
   fftSizeSlider: Slider;
@@ -10,7 +10,7 @@ export class WaveformAnalyser extends Node {
 
   analyser: AnalyserNode;
 
-  static DefaultState = { fftSize: 11 };
+  private static DefaultState = { fftSize: 11 };
 
   get audioCtx(): AudioContext {
     return this.flow.flowConnect.audioContext;

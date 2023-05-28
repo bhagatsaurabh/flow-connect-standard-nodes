@@ -1,4 +1,4 @@
-import { Flow, Vector, Node, NodeOptions, TerminalType, NodeStyle } from "flow-connect/core";
+import { Flow, Node, NodeOptions, TerminalType, NodeStyle } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
 import {
   InputType,
@@ -99,6 +99,7 @@ export class Oscillator extends Node {
       height: 10,
       propName: "frequency",
       style: { grow: 0.5 },
+      input: true,
     });
     this.freqInput = this.createUI("core/input", {
       propName: "frequency",
@@ -107,13 +108,13 @@ export class Oscillator extends Node {
     });
     this.freqHozLayout = this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
       childs: [this.createUI("core/label", { text: "Freq.", style: { grow: 0.2 } }), this.freqSlider, this.freqInput],
-      input: true,
       style: { spacing: 5 },
     });
     this.detuneSlider = this.createUI("core/slider", {
       min: -2400,
       max: 2400,
       height: 10,
+      input: true,
       propName: "detune",
       style: { grow: 0.5 },
     });
@@ -128,7 +129,6 @@ export class Oscillator extends Node {
         this.detuneSlider,
         this.detuneInput,
       ],
-      input: true,
       style: { spacing: 5 },
     });
     this.typeGroup = this.createUI<RadioGroup, RadioGroupOptions>("core/radio-group", {

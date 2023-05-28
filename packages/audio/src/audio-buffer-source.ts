@@ -41,6 +41,7 @@ export class AudioBufferSource extends Node {
 
   setupUI() {
     this.fileInput = this.createUI<Source, SourceOptions>("core/source", {
+      accept: "audio/*",
       propName: "file",
       height: 20,
       style: { grow: 1 },

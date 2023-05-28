@@ -1,7 +1,7 @@
+import { Align, DisplayOptions, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect";
 import { Flow, Node, Color, NodeOptions, TerminalType, NodeStyle } from "flow-connect/core";
 import { clamp, denormalize, normalize } from "flow-connect/utils";
 import { Slider, CanvasType, Display, Label, Select } from "flow-connect/ui";
-import { Align, DisplayOptions, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect";
 
 export class SpectrogramAnalyser extends Node {
   colorScaleSelect: Select;

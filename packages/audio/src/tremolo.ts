@@ -1,4 +1,4 @@
-import { Flow, Vector, Node, NodeOptions, TerminalType, NodeStyle } from "flow-connect/core";
+import { Flow, Node, NodeOptions, TerminalType, NodeStyle } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
 import { InputType, Input, Slider, Toggle, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect/ui";
 

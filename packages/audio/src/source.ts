@@ -1,4 +1,3 @@
-import { Flow, Node } from "flow-connect/core";
 import {
   FlowConnectState,
   HorizontalLayout,
@@ -9,6 +8,7 @@ import {
   NodeStyle,
   TerminalType,
 } from "flow-connect";
+import { Flow, Node } from "flow-connect/core";
 import { Log } from "flow-connect/utils";
 import { Toggle, Source as OGSource } from "flow-connect/ui";
 
@@ -121,6 +121,7 @@ export class Source extends Node {
     this.fileInput = this.createUI("core/source", {
       input: true,
       output: true,
+      accept: "audio/*",
       height: 25,
       style: { grow: 0.7 },
     });

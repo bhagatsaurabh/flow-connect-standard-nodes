@@ -1,7 +1,7 @@
+import { Align, HorizontalLayout, HorizontalLayoutOptions, Label, LabelOptions, StackOptions } from "flow-connect";
 import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { clamp, isInRange } from "flow-connect/utils";
 import { Toggle, VSlider, Stack, VSliderOptions } from "flow-connect/ui";
-import { Align, HorizontalLayout, HorizontalLayoutOptions, Label, LabelOptions, StackOptions } from "flow-connect";
 
 export class Equalizer extends Node {
   vSliders: VSlider[] = [];

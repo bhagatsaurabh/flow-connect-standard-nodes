@@ -1,4 +1,4 @@
-import { Flow, Vector, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 
 export class Gain extends Node {
   gain: GainNode;

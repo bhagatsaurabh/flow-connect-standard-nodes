@@ -1,4 +1,4 @@
-import { Flow, FlowState, Vector, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { Flow, FlowState, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { Log } from "flow-connect/utils";
 
 export class Microphone extends Node {
@@ -50,18 +50,15 @@ export class Microphone extends Node {
   }
 
   setupListeners() {
-    this.flow.flowConnect.on("start", () => {
+    this.flow.flowConnect.on("start", async () => {
       if (!this.stream) {
-        this.getMicrophone()
-          .then(
-            () => {
-              if (this.flow.state !== FlowState.Stopped) this.microphone.connect(this.outGain);
-            },
-            (error) => {
-              Log.error("Cannot access microphone: ", error);
-            }
-          )
-          .catch((error) => Log.error(error));
+        try {
+          await this.getMicrophone();
+          if (this.flow.state !== FlowState.Stopped) this.microphone.connect(this.outGain);
+        } catch (error) {
+          Log.error("Cannot access microphone: ", error);
+          this.call("mic-blocked");
+        }
       } else {
         this.microphone.connect(this.outGain);
       }

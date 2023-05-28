@@ -1,4 +1,4 @@
-import { Flow, Vector, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { HorizontalLayout, HorizontalLayoutOptions, Select } from "flow-connect/ui";
 
 export class Noise extends Node {

@@ -1,7 +1,7 @@
+import { Align, DisplayOptions, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect";
 import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
-import { Slider, Display, Label, LabelOptions } from "flow-connect/ui";
-import { Align, DisplayOptions, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect";
+import { Slider, Display, Label, LabelOptions, UIEvent } from "flow-connect/ui";
 
 export class FrequencyAnalyser extends Node {
   freqLabel: Label;
@@ -135,10 +135,10 @@ export class FrequencyAnalyser extends Node {
       this.fftSizeLabel.text = actualFFTSize;
       this.analyser.fftSize = actualFFTSize;
     });
-    this.display.on("over", (_inst, screenPos) => {
+    this.display.on("over", (event: UIEvent) => {
       this.state.currFreq =
         (Math.floor(
-          (screenPos.subtract(this.display.position.transform(this.flow.flowConnect.transform)).x /
+          (event.screenPos.subtract(this.display.position.transform(this.flow.flowConnect.transform)).x /
             this.display.displayConfigs[0].canvas.width) *
             this.analyser.frequencyBinCount
         ) *
