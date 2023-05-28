@@ -1,7 +1,7 @@
-import { Flow, Node, Vector } from "flow-connect/core";
-import { Align, NodeCreatorOptions } from "flow-connect/common";
+import { Flow, Node, NodeOptions, NodeStyle, TerminalType, Vector } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
 import { Display, Label, Slider } from "flow-connect/ui";
+import { Align, DisplayOptions, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect";
 
 export class WaveformAnalyser extends Node {
   fftSizeSlider: Slider;
@@ -12,60 +12,89 @@ export class WaveformAnalyser extends Node {
 
   static DefaultState = { fftSize: 11 };
 
+  get audioCtx(): AudioContext {
+    return this.flow.flowConnect.audioContext;
+  }
+
   fftSizes = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768];
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(
-      flow, options.name || 'Waveform Analyser',
-      options.position || new Vector(50, 50),
-      options.width || 350,
-      [{ name: 'in', dataType: 'audio' }], [{ name: 'out', dataType: 'audio' }],
-      {
-        style: options.style || { rowHeight: 10, spacing: 10 },
-        terminalStyle: options.terminalStyle || {},
-        state: options.state ? { ...WaveformAnalyser.DefaultState, ...options.state } : WaveformAnalyser.DefaultState
-      }
-    )
+  constructor(_flow: Flow, _options: WaveformAnalyserOptions) {
+    super();
+  }
 
-    this.analyser = flow.flowConnect.audioContext.createAnalyser();
+  protected setupIO(_options: WaveformAnalyserOptions): void {
+    this.addTerminals([
+      { type: TerminalType.IN, name: "in", dataType: "audio" },
+      { type: TerminalType.OUT, name: "out", dataType: "audio" },
+    ]);
+  }
+
+  protected created(options: WaveformAnalyserOptions): void {
+    const { width = 350, name = "Waveform Analyser", state = {}, style = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.state = { ...WaveformAnalyser.DefaultState, ...state };
+    this.style = { ...DefaultWaveformAnalyserStyle(), ...style };
+
+    this.analyser = this.audioCtx.createAnalyser();
     this.analyser.fftSize = this.getFFTSize();
     this.inputs[0].ref = this.outputs[0].ref = this.analyser;
 
     this.setupUI();
-
-    this.watch('fftSize', (_oldVal, newVal) => {
-      if (newVal < 5 || newVal > 15) this.state.fftSize = clamp(Math.round(newVal), 5, 15);
-      let actualFFTSize = this.getFFTSize();
-      this.fftSizeLabel.text = actualFFTSize;
-      this.analyser.fftSize = actualFFTSize;
-    });
-
-    this.handleAudioConnections();
+    this.setupListeners();
   }
+
+  protected process(_inputs: any[]): void {}
 
   getFFTSize() {
     return this.fftSizes[clamp(Math.round(this.state.fftSize), 5, 15) - 5];
   }
-
   setupUI() {
-    this.fftSizeSlider = this.createSlider(5, 15, { height: 10, propName: 'fftSize', style: { grow: .6, precision: 0 } });
-    this.fftSizeLabel = this.createLabel(this.getFFTSize(), { height: 20, style: { grow: .2, align: Align.Right } });
-    this.display = this.createDisplay(200, [{
-      auto: true,
-      clear: true,
-      renderer: (...args) => this.customRenderer(args[0], args[1], args[2])
-    }]);
+    this.fftSizeSlider = this.createUI("core/slider", {
+      min: 5,
+      max: 15,
+      height: 10,
+      propName: "fftSize",
+      style: { grow: 0.6, precision: 0 },
+    });
+    this.fftSizeLabel = this.createUI("core/label", {
+      text: this.getFFTSize(),
+      height: 20,
+      style: { grow: 0.2, align: Align.Right },
+    });
+    this.display = this.createUI<Display, DisplayOptions>("core/display", {
+      height: 200,
+      customRenderers: [
+        {
+          auto: true,
+          clear: true,
+          renderer: (...args) => this.customRenderer(args[0], args[1], args[2]),
+        },
+      ],
+    });
 
     this.ui.append([
       this.display,
-      this.createHozLayout([
-        this.createLabel('FFT Size', { style: { grow: .2 } }), this.fftSizeSlider, this.fftSizeLabel
-      ], { style: { spacing: 5 } })
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [
+          this.createUI("core/label", { text: "FFT Size", style: { grow: 0.2 } }),
+          this.fftSizeSlider,
+          this.fftSizeLabel,
+        ],
+        style: { spacing: 5 },
+      }),
     ]);
   }
-
-  customRenderer(context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D, width: number, height: number): boolean {
-    let value, percent, offset, barWidth,
+  customRenderer(
+    context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D,
+    width: number,
+    height: number
+  ): boolean {
+    let value,
+      percent,
+      offset,
+      barWidth,
       frequencyBinCount = this.analyser.frequencyBinCount,
       waveformData = new Uint8Array(frequencyBinCount),
       orgHeight = height,
@@ -94,9 +123,24 @@ export class WaveformAnalyser extends Node {
 
     return true;
   }
+  setupListeners() {
+    this.watch("fftSize", (_oldVal, newVal) => {
+      if (newVal < 5 || newVal > 15) this.state.fftSize = clamp(Math.round(newVal), 5, 15);
+      let actualFFTSize = this.getFFTSize();
+      this.fftSizeLabel.text = actualFFTSize;
+      this.analyser.fftSize = actualFFTSize;
+    });
 
-  handleAudioConnections() {
-    this.outputs[0].on('connect', (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
-    this.outputs[0].on('disconnect', (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
+    this.outputs[0].on("connect", (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
+    this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }
 }
+
+export interface WaveformAnalyserOptions extends NodeOptions {}
+
+export interface WaveformAnalyserStyle extends NodeStyle {}
+
+const DefaultWaveformAnalyserStyle = (): WaveformAnalyserStyle => ({
+  rowHeight: 10,
+  spacing: 10,
+});

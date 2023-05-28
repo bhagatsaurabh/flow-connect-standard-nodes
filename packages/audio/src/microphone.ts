@@ -1,5 +1,4 @@
-import { Flow, FlowState, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
+import { Flow, FlowState, Vector, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { Log } from "flow-connect/utils";
 
 export class Microphone extends Node {
@@ -7,51 +6,77 @@ export class Microphone extends Node {
   stream: MediaStream;
   outGain: GainNode;
 
+  get audioCtx(): AudioContext {
+    return this.flow.flowConnect.audioContext;
+  }
+
   static DefaultState = {};
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(
-      flow, options.name || 'Microphone',
-      options.position || new Vector(50, 50),
-      options.width || 120, [],
-      [{ name: 'out', dataType: 'audio' }],
-      {
-        style: options.style || { rowHeight: 10 },
-        terminalStyle: options.terminalStyle || {},
-        state: options.state ? { ...Microphone.DefaultState, ...options.state } : Microphone.DefaultState
-      }
-    )
+  constructor(_flow: Flow, _options: MicrophoneOptions) {
+    super();
+  }
 
-    this.outGain = flow.flowConnect.audioContext.createGain();
+  protected setupIO(_options: MicrophoneOptions): void {
+    this.addTerminals([{ type: TerminalType.OUT, name: "out", dataType: "audio" }]);
+  }
+
+  protected created(options: MicrophoneOptions): void {
+    const { width = 120, name = "Microphone", state = {}, style = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.state = { ...Microphone.DefaultState, ...state };
+    this.style = { ...DefaultMicrophoneStyle(), ...style };
+
+    this.outGain = this.audioCtx.createGain();
     this.outputs[0].ref = this.outGain;
 
-    this.flow.flowConnect.on('start', () => {
+    this.setupListeners();
+    this.getMicrophone()
+      .then(
+        () => {},
+        (error) => {
+          Log.error("Cannot access microphone: ", error);
+        }
+      )
+      .catch((error) => Log.error(error));
+  }
+
+  protected process(_inputs: any[]): void {}
+
+  async getMicrophone() {
+    this.stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    this.microphone = this.audioCtx.createMediaStreamSource(this.stream);
+  }
+
+  setupListeners() {
+    this.flow.flowConnect.on("start", () => {
       if (!this.stream) {
-        this.getMicrophone().then(() => {
-          if (this.flow.state !== FlowState.Stopped) this.microphone.connect(this.outGain);
-        }, error => {
-          Log.error('Cannot access microphone: ', error);
-        }).catch(error => Log.error(error));
+        this.getMicrophone()
+          .then(
+            () => {
+              if (this.flow.state !== FlowState.Stopped) this.microphone.connect(this.outGain);
+            },
+            (error) => {
+              Log.error("Cannot access microphone: ", error);
+            }
+          )
+          .catch((error) => Log.error(error));
       } else {
         this.microphone.connect(this.outGain);
       }
     });
-    this.flow.flowConnect.on('stop', () => this.microphone && this.microphone.disconnect());
+    this.flow.flowConnect.on("stop", () => this.microphone && this.microphone.disconnect());
 
-    this.handleAudioConnections();
-
-    this.getMicrophone().then(() => { /**/ }, error => {
-      Log.error('Cannot access microphone: ', error);
-    }).catch(error => Log.error(error));
-  }
-
-  async getMicrophone() {
-    this.stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    this.microphone = this.flow.flowConnect.audioContext.createMediaStreamSource(this.stream);
-  }
-
-  handleAudioConnections() {
-    this.outputs[0].on('connect', (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
-    this.outputs[0].on('disconnect', (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
+    this.outputs[0].on("connect", (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
+    this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }
 }
+
+export interface MicrophoneOptions extends NodeOptions {}
+
+export interface MicrophoneStyle extends NodeStyle {}
+
+const DefaultMicrophoneStyle = (): MicrophoneStyle => ({
+  rowHeight: 10,
+});

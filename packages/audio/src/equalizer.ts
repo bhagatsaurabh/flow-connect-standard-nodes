@@ -1,7 +1,7 @@
-import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions, Align } from "flow-connect/common";
+import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { clamp, isInRange } from "flow-connect/utils";
-import { Toggle, VSlider, Stack } from "flow-connect/ui";
+import { Toggle, VSlider, Stack, VSliderOptions } from "flow-connect/ui";
+import { Align, HorizontalLayout, HorizontalLayoutOptions, Label, LabelOptions, StackOptions } from "flow-connect";
 
 export class Equalizer extends Node {
   vSliders: VSlider[] = [];
@@ -11,34 +11,53 @@ export class Equalizer extends Node {
   outGain: GainNode;
 
   frequencies = [32, 64, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
-  freqDisplay = ['32', '64', '125', '250', '500', '1K', '2K', '4K', '8K', '16K']
+  freqDisplay = ["32", "64", "125", "250", "500", "1K", "2K", "4K", "8K", "16K"];
 
-  static DefaultState = { eq1: 0, eq2: 0, eq3: 0, eq4: 0, eq5: 0, eq6: 0, eq7: 0, eq8: 0, eq9: 0, eq10: 0, bypass: false };
+  get audioCtx(): AudioContext {
+    return this.flow.flowConnect.audioContext;
+  }
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(
-      flow, options.name || 'Equalizer',
-      options.position || new Vector(50, 50),
-      options.width || 300,
-      [{ name: 'in', dataType: 'audio' }], [{ name: 'out', dataType: 'audio' }],
-      {
-        style: options.style || { rowHeight: 10, spacing: 10 },
-        terminalStyle: options.terminalStyle || {},
-        state: options.state ? { ...Equalizer.DefaultState, ...options.state } : Equalizer.DefaultState
-      }
-    )
+  static DefaultState = {
+    eq1: 0,
+    eq2: 0,
+    eq3: 0,
+    eq4: 0,
+    eq5: 0,
+    eq6: 0,
+    eq7: 0,
+    eq8: 0,
+    eq9: 0,
+    eq10: 0,
+    bypass: false,
+  };
 
-    this.inGain = flow.flowConnect.audioContext.createGain();
-    this.outGain = flow.flowConnect.audioContext.createGain();
+  constructor(_flow: Flow, _options: EqualizerOptions) {
+    super();
+  }
+
+  protected setupIO(_options: EqualizerOptions): void {
+    this.addTerminals([
+      { type: TerminalType.IN, name: "in", dataType: "audio" },
+      { type: TerminalType.OUT, name: "out", dataType: "audio" },
+    ]);
+  }
+
+  protected created(options: EqualizerOptions): void {
+    const { width = 300, name = "Equalizer", state = {}, style = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.state = { ...Equalizer.DefaultState, ...state };
+    this.style = { ...DefaultEqualizerStyle(), ...style };
+
+    this.inGain = this.audioCtx.createGain();
+    this.outGain = this.audioCtx.createGain();
     this.frequencies.forEach((freq, index) => {
-      let filter = flow.flowConnect.audioContext.createBiquadFilter();
+      let filter = this.audioCtx.createBiquadFilter();
       filter.frequency.value = freq;
-      if (index === 0)
-        filter.type = 'lowshelf';
-      else if (index === 9)
-        filter.type = 'highshelf';
-      else
-        filter.type = 'peaking';
+      if (index === 0) filter.type = "lowshelf";
+      else if (index === 9) filter.type = "highshelf";
+      else filter.type = "peaking";
       this.filters.push(filter);
     });
     for (let i = 1; i < 10; ++i) {
@@ -49,21 +68,11 @@ export class Equalizer extends Node {
     this.outputs[0].ref = this.outGain;
 
     this.setBypass();
-
     this.setupUI();
-
-    this.watch('bypass', this.setBypass.bind(this));
-    for (let i = 1; i <= 10; ++i) {
-      this.watch(`eq${i}`, (_oldVal, newVal) => {
-        if (!isInRange(newVal, -40, 40)) {
-          this.state[`eq${i}`] = clamp(newVal, -40, 40);
-        }
-        this.filters[i - 1].gain.value = this.state[`eq${i}`]
-      });
-    }
-
-    this.handleAudioConnections();
+    this.setupListeners();
   }
+
+  protected process(_inputs: any[]): void {}
 
   setBypass() {
     if (!this.state.bypass) {
@@ -79,26 +88,60 @@ export class Equalizer extends Node {
   setupUI() {
     let stacks: Stack[] = [];
     this.frequencies.forEach((_freq, index) => {
-      let vSlider = this.createVSlider(-40, 40, { height: 120, propName: `eq${index + 1}` });
+      const vSlider = this.createUI<VSlider, VSliderOptions>("core/v-slider", {
+        min: -40,
+        max: 40,
+        height: 120,
+        propName: `eq${index + 1}`,
+      });
       this.vSliders.push(vSlider);
-      let stack = this.createStack({
+      const stack = this.createUI<Stack, StackOptions>("core/stack", {
         childs: [
-          this.createLabel(this.freqDisplay[index], { style: { align: Align.Center } }),
+          this.createUI("core/label", { text: this.freqDisplay[index], style: { align: Align.Center } }),
           vSlider,
-          this.createLabel(this.state[`eq${index + 1}`], { propName: `eq${index + 1}`, style: { align: Align.Center, precision: 0 } }),
+          this.createUI("core/label", {
+            text: this.state[`eq${index + 1}`],
+            propName: `eq${index + 1}`,
+            style: { align: Align.Center, precision: 0 },
+          }),
         ],
-        style: { grow: .1, spacing: 5 }
+        style: { grow: 0.1, spacing: 5 },
       });
       stacks.push(stack);
     });
-    this.bypassToggle = this.createToggle({ propName: 'bypass', height: 10, style: { grow: .1 } });
+    this.bypassToggle = this.createUI("core/toggle", { propName: "bypass", height: 10, style: { grow: 0.1 } });
     this.ui.append([
-      this.createHozLayout(stacks, { style: { spacing: 5 } }),
-      this.createHozLayout([this.createLabel('Bypass ?'), this.bypassToggle], { style: { spacing: 5 } })
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: stacks,
+        style: { spacing: 5 },
+      }),
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [this.createUI<Label, LabelOptions>("core/label", { text: "Bypass ?" }), this.bypassToggle],
+        style: { spacing: 5 },
+      }),
     ]);
   }
-  handleAudioConnections() {
-    this.outputs[0].on('connect', (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
-    this.outputs[0].on('disconnect', (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
+  setupListeners() {
+    this.watch("bypass", this.setBypass.bind(this));
+    for (let i = 1; i <= 10; ++i) {
+      this.watch(`eq${i}`, (_oldVal, newVal) => {
+        if (!isInRange(newVal, -40, 40)) {
+          this.state[`eq${i}`] = clamp(newVal, -40, 40);
+        }
+        this.filters[i - 1].gain.value = this.state[`eq${i}`];
+      });
+    }
+
+    this.outputs[0].on("connect", (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
+    this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }
 }
+
+export interface EqualizerOptions extends NodeOptions {}
+
+export interface EqualizerStyle extends NodeStyle {}
+
+const DefaultEqualizerStyle = (): EqualizerStyle => ({
+  rowHeight: 10,
+  spacing: 10,
+});

@@ -1,7 +1,6 @@
-import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
+import { Flow, Vector, Node, NodeOptions, TerminalType, NodeState, NodeStyle } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
-import { InputType, Slider, Toggle } from "flow-connect/ui";
+import { HorizontalLayout, HorizontalLayoutOptions, InputType, Slider, Toggle } from "flow-connect/ui";
 
 export class MoogEffect extends Node {
   cutoffSlider: Slider;
@@ -12,45 +11,48 @@ export class MoogEffect extends Node {
   outGain: GainNode;
   moog: AudioWorkletNode;
 
+  get audioCtx(): AudioContext {
+    return this.flow.flowConnect.audioContext;
+  }
+
   static DefaultState = { cutoff: 0.065, resonance: 3.5, bypass: false };
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Moog Effect', options.position || new Vector(50, 50), options.width || 230,
-      [{ name: 'in', dataType: 'audio' }],
-      [{ name: 'out', dataType: 'audio' }],
-      {
-        state: options.state ? { ...MoogEffect.DefaultState, ...options.state } : MoogEffect.DefaultState,
-        style: options.style || { rowHeight: 10, spacing: 10 },
-        terminalStyle: options.terminalStyle || {}
-      }
-    );
+  constructor(_flow: Flow, _options: MoogOptions) {
+    super();
+  }
 
-    this.inGain = flow.flowConnect.audioContext.createGain();
-    this.outGain = flow.flowConnect.audioContext.createGain();
+  protected setupIO(_options: MoogOptions): void {
+    this.addTerminals([
+      { type: TerminalType.IN, name: "in", dataType: "audio" },
+      { type: TerminalType.OUT, name: "out", dataType: "audio" },
+    ]);
+  }
+
+  protected created(options: MoogOptions): void {
+    const { width = 230, name = "Moog Effect", state = {}, style = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.state = { ...MoogEffect.DefaultState, ...state };
+    this.style = { ...DefaultMoogStyle(), ...style };
+
+    this.inGain = this.audioCtx.createGain();
+    this.outGain = this.audioCtx.createGain();
     this.inputs[0].ref = this.inGain;
     this.outputs[0].ref = this.outGain;
 
-    this.moog = new AudioWorkletNode(flow.flowConnect.audioContext, 'moog-effect', {
-      numberOfInputs: 1, numberOfOutputs: 1, processorOptions: { bufferSize: 4096 }
+    this.moog = new AudioWorkletNode(this.audioCtx, "moog-effect", {
+      numberOfInputs: 1,
+      numberOfOutputs: 1,
+      processorOptions: { bufferSize: 4096 },
     });
+
     this.setBypass();
-
     this.setupUI();
-
-    this.watch('bypass', () => this.setBypass());
-    this.watch('cutoff', () => {
-      if (this.state.cutoff < 0.0001 || this.state.cutoff > 1.0) this.state.cutoff = clamp(this.state.cutoff, 0.0001, 1.0);
-      this.paramsChanged();
-    });
-    this.watch('resonance', () => {
-      if (this.state.resonance < 0 || this.state.resonance > 4.0) this.state.resonance = clamp(this.state.resonance, 0, 4.0);
-      this.paramsChanged();
-    });
-
-    flow.flowConnect.on('start', () => this.paramsChanged());
-
-    this.handleAudioConnections();
+    this.setupListeners();
   }
+
+  protected process(_inputs: any[]): void {}
 
   paramsChanged() {
     this.moog.port.postMessage({ cutoff: this.state.cutoff, resonance: this.state.resonance });
@@ -67,20 +69,75 @@ export class MoogEffect extends Node {
     }
   }
   setupUI() {
-    this.cutoffSlider = this.createSlider(0.0001, 1.0, { height: 10, propName: 'cutoff', style: { grow: .5 } });
-    this.resonanceSlider = this.createSlider(0, 4.0, { height: 10, propName: 'resonance', style: { grow: .5 } });
-    let cutoffInput = this.createInput({ propName: 'cutoff', height: 20, style: { type: InputType.Number, grow: .2, precision: 2 } });
-    let resonanceInput = this.createInput({ propName: 'resonance', height: 20, style: { type: InputType.Number, grow: .4, precision: 2 } });
-    this.bypassToggle = this.createToggle({ propName: 'bypass', style: { grow: .1 } });
+    this.cutoffSlider = this.createUI("core/slider", {
+      min: 0.0001,
+      max: 1.0,
+      height: 10,
+      propName: "cutoff",
+      style: { grow: 0.5 },
+    });
+    this.resonanceSlider = this.createUI("core/slider", {
+      min: 0,
+      max: 4.0,
+      height: 10,
+      propName: "resonance",
+      style: { grow: 0.5 },
+    });
+    let cutoffInput = this.createUI("core/input", {
+      propName: "cutoff",
+      height: 20,
+      style: { type: InputType.Number, grow: 0.2, precision: 2 },
+    });
+    let resonanceInput = this.createUI("core/input", {
+      propName: "resonance",
+      height: 20,
+      style: { type: InputType.Number, grow: 0.4, precision: 2 },
+    });
+    this.bypassToggle = this.createUI("core/toggle", { propName: "bypass", style: { grow: 0.1 } });
     this.ui.append([
-      this.createHozLayout([this.createLabel('Cutoff', { style: { grow: .3 } }), this.cutoffSlider, cutoffInput], { style: { spacing: 5 } }),
-      this.createHozLayout([this.createLabel('Resonance', { style: { grow: .3 } }), this.resonanceSlider, resonanceInput], { style: { spacing: 5 } }),
-      this.createHozLayout([this.createLabel('Bypass ?', { style: { grow: .3 } }), this.bypassToggle], { style: { spacing: 5 } })
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [this.createUI("core/label", { text: "Cutoff", style: { grow: 0.3 } }), this.cutoffSlider, cutoffInput],
+        style: { spacing: 5 },
+      }),
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [
+          this.createUI("core/label", { text: "Resonance", style: { grow: 0.3 } }),
+          this.resonanceSlider,
+          resonanceInput,
+        ],
+        style: { spacing: 5 },
+      }),
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [this.createUI("core/label", { text: "Bypass ?", style: { grow: 0.3 } }), this.bypassToggle],
+        style: { spacing: 5 },
+      }),
     ]);
   }
-  handleAudioConnections() {
-    // Handle actual webaudio node stuff
-    this.outputs[0].on('connect', (_, connector) => this.outputs[0].ref.connect(connector.end.ref));
-    this.outputs[0].on('disconnect', (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
+  setupListeners() {
+    this.watch("bypass", () => this.setBypass());
+    this.watch("cutoff", () => {
+      if (this.state.cutoff < 0.0001 || this.state.cutoff > 1.0)
+        this.state.cutoff = clamp(this.state.cutoff, 0.0001, 1.0);
+      this.paramsChanged();
+    });
+    this.watch("resonance", () => {
+      if (this.state.resonance < 0 || this.state.resonance > 4.0)
+        this.state.resonance = clamp(this.state.resonance, 0, 4.0);
+      this.paramsChanged();
+    });
+
+    this.flow.flowConnect.on("start", () => this.paramsChanged());
+
+    this.outputs[0].on("connect", (_, connector) => this.outputs[0].ref.connect(connector.end.ref));
+    this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }
 }
+
+export interface MoogOptions extends NodeOptions {}
+
+export interface MoogStyle extends NodeStyle {}
+
+const DefaultMoogStyle = (): MoogStyle => ({
+  rowHeight: 10,
+  spacing: 10,
+});
