@@ -164,8 +164,8 @@ export class Automate extends Node {
     this.loopToggle.on("change", () => this.startAutomation());
     this.inputs[0].on("event", () => this.startAutomation());
 
-    this.flow.flowConnect.on("start", () => this.state.auto && this.startAutomation());
-    this.flow.flowConnect.on("stop", () => this.stopAutomation());
+    this.flow.on("start", () => this.state.auto && this.startAutomation());
+    this.flow.on("stop", () => this.stopAutomation());
 
     this.outputs[0].on("connect", (_inst, connector) => {
       if (connector.end.ref instanceof AudioParam) {

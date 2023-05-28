@@ -1,5 +1,5 @@
 import {
-  FlowConnectState,
+  FlowState,
   HorizontalLayout,
   HorizontalLayoutOptions,
   Label,
@@ -119,7 +119,7 @@ export class Metronome extends Node {
     ]);
   }
   playSource() {
-    if (this.flow.flowConnect.state === FlowConnectState.Stopped || !this.state.buffer) return;
+    if (this.flow.state === FlowState.Stopped || !this.state.buffer) return;
 
     let audioSource = new AudioBufferSourceNode(this.flow.flowConnect.audioContext);
     audioSource.buffer = this.state.buffer;
@@ -153,8 +153,8 @@ export class Metronome extends Node {
     });
     this.inputs[0].on("event", () => this.playSource());
 
-    this.flow.flowConnect.on("start", () => this.state.auto && this.playSource());
-    this.flow.flowConnect.on("stop", () => this.stopSource());
+    this.flow.on("start", () => this.state.auto && this.playSource());
+    this.flow.on("stop", () => this.stopSource());
 
     this.outputs[0].on("connect", (_, connector) => this.outputs[0].ref.connect(connector.end.ref));
     this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));

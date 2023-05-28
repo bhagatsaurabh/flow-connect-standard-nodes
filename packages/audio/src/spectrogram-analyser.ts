@@ -169,10 +169,10 @@ export class SpectrogramAnalyser extends Node {
     this.currInterpolator = this.colorScaleToInterp["Heated Metal"];
 
     this.display.displayConfigs[0].shouldRender = false;
-    this.flow.flowConnect.on("start", () => {
+    this.flow.on("start", () => {
       this.display.displayConfigs[0].shouldRender = true;
     });
-    this.flow.flowConnect.on("stop", () => {
+    this.flow.on("stop", () => {
       this.display.displayConfigs[0].shouldRender = false;
     });
   }

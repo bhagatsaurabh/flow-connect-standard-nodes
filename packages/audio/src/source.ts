@@ -1,5 +1,5 @@
 import {
-  FlowConnectState,
+  FlowState,
   HorizontalLayout,
   HorizontalLayoutOptions,
   Label,
@@ -99,7 +99,7 @@ export class Source extends Node {
     this.playSource();
   }
   playSource() {
-    if (this.flow.flowConnect.state === FlowConnectState.Stopped || !this.state.buffer) return;
+    if (this.flow.state === FlowState.Stopped || !this.state.buffer) return;
 
     let audioSource = new AudioBufferSourceNode(this.flow.flowConnect.audioContext);
     audioSource.buffer = this.state.buffer;
@@ -162,8 +162,8 @@ export class Source extends Node {
     this.fileInput.on("change", (_inst, _oldVal: File, newVal: File) => this.processFile(newVal));
     this.fileInput.on("upload", (_inst, _oldVal: File, newVal: File) => this.processFile(newVal));
 
-    this.flow.flowConnect.on("start", () => this.playSource());
-    this.flow.flowConnect.on("stop", () => this.stopSource());
+    this.flow.on("start", () => this.playSource());
+    this.flow.on("stop", () => this.stopSource());
 
     this.outputs[0].on("connect", (_, connector) => {
       this.state.buffer && this.propagateChannelChange(this.state.buffer.numberOfChannels);

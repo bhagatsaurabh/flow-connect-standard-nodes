@@ -146,7 +146,7 @@ export class BitcrusherEffect extends Node {
       if (this.state.normFreq < 0 || this.state.normFreq > 1) this.state.normFreq = clamp(this.state.normFreq, 0, 1);
     });
 
-    this.flow.flowConnect.on("start", () => this.paramsChanged());
+    this.flow.on("start", () => this.paramsChanged());
 
     this.outputs[0].on("connect", (_, connector) => this.outputs[0].ref.connect(connector.end.ref));
     this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));

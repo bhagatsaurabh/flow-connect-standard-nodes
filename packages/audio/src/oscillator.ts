@@ -155,8 +155,8 @@ export class Oscillator extends Node {
       if (this.types.includes(newVal)) this.oscillator && (this.oscillator.type = newVal);
     });
 
-    this.flow.flowConnect.on("start", () => this.startOscillator());
-    this.flow.flowConnect.on("stop", () => this.stopOscillator());
+    this.flow.on("start", () => this.startOscillator());
+    this.flow.on("stop", () => this.stopOscillator());
 
     this.inputsUI[0].on("connect", () => {
       if (this.oscillator) {

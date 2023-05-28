@@ -66,10 +66,10 @@ export class Noise extends Node {
       this.noise.port.postMessage(newVal);
     });
 
-    this.flow.flowConnect.on("start", () => {
+    this.flow.on("start", () => {
       this.noise.connect(this.outGain);
     });
-    this.flow.flowConnect.on("stop", () => {
+    this.flow.on("stop", () => {
       this.noise.disconnect();
     });
 
