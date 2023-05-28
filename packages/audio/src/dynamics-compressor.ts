@@ -13,7 +13,7 @@ export class DynamicsCompressor extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  constructor(_flow: Flow, _options: DynamicsCompressorOptions) {
+  constructor() {
     super();
   }
 

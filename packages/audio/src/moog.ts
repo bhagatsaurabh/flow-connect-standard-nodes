@@ -15,9 +15,9 @@ export class MoogEffect extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = { cutoff: 0.065, resonance: 3.5, bypass: false };
+  private static DefaultState = { cutoff: 0.065, resonance: 3.5, bypass: false };
 
-  constructor(_flow: Flow, _options: MoogOptions) {
+  constructor() {
     super();
   }
 

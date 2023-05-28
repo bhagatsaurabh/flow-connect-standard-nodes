@@ -1,4 +1,4 @@
-import { Flow, Node, TerminalType, NodeOptions, NodeStyle } from "flow-connect/core";
+import { Node, TerminalType, NodeOptions, NodeStyle } from "flow-connect/core";
 
 export class ChannelSplitter extends Node {
   splitter: ChannelSplitterNode;
@@ -9,7 +9,7 @@ export class ChannelSplitter extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  constructor(_flow: Flow, _options: ChannelSplitterOptions) {
+  constructor() {
     super();
   }
 

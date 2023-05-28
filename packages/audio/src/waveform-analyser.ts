@@ -18,7 +18,7 @@ export class WaveformAnalyser extends Node {
 
   fftSizes = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768];
 
-  constructor(_flow: Flow, _options: WaveformAnalyserOptions) {
+  constructor() {
     super();
   }
 

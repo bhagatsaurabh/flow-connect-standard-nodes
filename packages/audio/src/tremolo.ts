@@ -1,4 +1,4 @@
-import { Flow, Node, NodeOptions, TerminalType, NodeStyle } from "flow-connect/core";
+import { Node, NodeOptions, TerminalType, NodeStyle } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
 import { InputType, Input, Slider, Toggle, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect/ui";
 
@@ -12,9 +12,9 @@ export class TremoloEffect extends Node {
   bypassToggle: Toggle;
   tremolo: any;
 
-  static DefaultState = { intensity: 0.3, stereoPhase: 0, rate: 5, bypass: false };
+  private static DefaultState = { intensity: 0.3, stereoPhase: 0, rate: 5, bypass: false };
 
-  constructor(_flow: Flow, _options: TremoloOptions) {
+  constructor() {
     super();
   }
 

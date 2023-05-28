@@ -1,4 +1,4 @@
-import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 
 export class Gain extends Node {
   gain: GainNode;
@@ -7,9 +7,9 @@ export class Gain extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = { gain: 1 };
+  private static DefaultState = { gain: 1 };
 
-  constructor(_flow: Flow, _options: GainOptions) {
+  constructor() {
     super();
   }
 

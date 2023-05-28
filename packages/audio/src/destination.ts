@@ -7,7 +7,7 @@ export class Destination extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  constructor(_flow: Flow, _options: DestinationOptions) {
+  constructor() {
     super();
   }
 

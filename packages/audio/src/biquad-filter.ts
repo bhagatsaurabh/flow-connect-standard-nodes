@@ -1,4 +1,4 @@
-import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { HorizontalLayout, HorizontalLayoutOptions, Select, Toggle } from "flow-connect/ui";
 
 export class BiquadFilter extends Node {
@@ -13,9 +13,9 @@ export class BiquadFilter extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = { filterType: "lowpass", bypass: false };
+  private static DefaultState = { filterType: "lowpass", bypass: false };
 
-  constructor(_flow: Flow, _options: BiquadFilterOptions) {
+  constructor() {
     super();
   }
 

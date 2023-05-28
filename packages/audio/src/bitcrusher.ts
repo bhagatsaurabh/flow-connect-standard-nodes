@@ -1,4 +1,4 @@
-import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
 import {
   InputType,
@@ -26,9 +26,9 @@ export class BitcrusherEffect extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = { bits: 4, normFreq: 0.1, bypass: false };
+  private static DefaultState = { bits: 4, normFreq: 0.1, bypass: false };
 
-  constructor(_flow: Flow, _options: BitcrusherOptions) {
+  constructor() {
     super();
   }
 

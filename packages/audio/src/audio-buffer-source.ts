@@ -31,7 +31,6 @@ export class AudioBufferSource extends Node {
     this.style = { ...DefaultAudioBufferSourceStyle(), ...style };
 
     this.setupUI();
-
     this.fileInput.on("change", () => this.processFile());
   }
 

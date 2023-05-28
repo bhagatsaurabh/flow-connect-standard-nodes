@@ -15,7 +15,7 @@ export class SpectrogramAnalyser extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = { fftSize: 11, colorScale: "Heated Metal" };
+  private static DefaultState = { fftSize: 11, colorScale: "Heated Metal" };
 
   colorScales = ["Heated Metal", "Monochrome", "Inverted Monochrome", "Spectrum"];
   fftSizes = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768];
@@ -24,7 +24,7 @@ export class SpectrogramAnalyser extends Node {
   colorScaleToInterp: Record<string, Function> = {};
   currInterpolator: Function;
 
-  constructor(_flow: Flow, _options: SpectrogramAnalyserOptions) {
+  constructor() {
     super();
   }
 

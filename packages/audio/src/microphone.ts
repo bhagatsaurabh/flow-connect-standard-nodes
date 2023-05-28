@@ -10,9 +10,9 @@ export class Microphone extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = {};
+  private static DefaultState = {};
 
-  constructor(_flow: Flow, _options: MicrophoneOptions) {
+  constructor() {
     super();
   }
 

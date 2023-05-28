@@ -8,7 +8,7 @@ import {
   NodeStyle,
   TerminalType,
 } from "flow-connect";
-import { Flow, Node } from "flow-connect/core";
+import { Node } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
 import { InputType, Input, Toggle } from "flow-connect/ui";
 
@@ -25,9 +25,9 @@ export class Metronome extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState: any = { frequency: 330, buffer: null, bpm: 130, loop: true, auto: true };
+  private static DefaultState: any = { frequency: 330, buffer: null, bpm: 130, loop: true, auto: true };
 
-  constructor(_flow: Flow, _options: MetronomeOptions) {
+  constructor() {
     super();
   }
 

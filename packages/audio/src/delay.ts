@@ -1,4 +1,4 @@
-import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
 import { HorizontalLayout, HorizontalLayoutOptions, InputType, Slider } from "flow-connect/ui";
 
@@ -21,9 +21,9 @@ export class DelayEffect extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = { feedback: 0.45, cutoff: 20000, wet: 0.5, dry: 1, delayTime: 100, bypass: false };
+  private static DefaultState = { feedback: 0.45, cutoff: 20000, wet: 0.5, dry: 1, delayTime: 100, bypass: false };
 
-  constructor(_flow: Flow, _options: DelayOptions) {
+  constructor() {
     super();
   }
 

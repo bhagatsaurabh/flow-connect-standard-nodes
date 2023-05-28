@@ -1,4 +1,4 @@
-import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
 import {
   Toggle,
@@ -25,9 +25,9 @@ export class Distorter extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = { oversample: "none", amount: 50, bypass: false };
+  private static DefaultState = { oversample: "none", amount: 50, bypass: false };
 
-  constructor(_flow: Flow, _options: DistorterOptions) {
+  constructor() {
     super();
   }
 

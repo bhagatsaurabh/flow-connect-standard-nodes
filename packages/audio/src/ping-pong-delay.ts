@@ -14,9 +14,9 @@ export class PingPongEffect extends Node {
   bypassToggle: Toggle;
   pingPong: any;
 
-  static DefaultState = { delayLeft: 200, delayRight: 400, feedback: 0.3, wet: 0.5, bypass: false };
+  private static DefaultState = { delayLeft: 200, delayRight: 400, feedback: 0.3, wet: 0.5, bypass: false };
 
-  constructor(_flow: Flow, _options: PingPongOptions) {
+  constructor() {
     super();
   }
 

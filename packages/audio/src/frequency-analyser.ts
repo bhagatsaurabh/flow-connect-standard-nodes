@@ -1,5 +1,5 @@
 import { Align, DisplayOptions, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect";
-import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
 import { Slider, Display, Label, LabelOptions, UIEvent } from "flow-connect/ui";
 
@@ -15,11 +15,11 @@ export class FrequencyAnalyser extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = { fftSize: 11, currFreq: 0 };
+  private static DefaultState = { fftSize: 11, currFreq: 0 };
 
   fftSizes = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768];
 
-  constructor(_flow: Flow, _options: FrequencyAnalyserOptions) {
+  constructor() {
     super();
   }
 

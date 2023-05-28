@@ -30,9 +30,9 @@ export class Oscillator extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = { frequency: 440, detune: 0, type: "sine" };
+  private static DefaultState = { frequency: 440, detune: 0, type: "sine" };
 
-  constructor(_flow: Flow, _options: OscillatorOptions) {
+  constructor() {
     super();
   }
 

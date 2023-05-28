@@ -1,4 +1,4 @@
-import { Flow, FlowState, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { FlowState, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 
 export class Debug extends Node {
   inGain: GainNode;
@@ -9,7 +9,7 @@ export class Debug extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  constructor(_flow: Flow, _options: DebugOptions) {
+  constructor() {
     super();
   }
 

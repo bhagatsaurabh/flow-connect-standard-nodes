@@ -12,9 +12,9 @@ export class Convolver extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = { bypass: false };
+  private static DefaultState = { bypass: false };
 
-  constructor(_flow: Flow, _options: ConvolverOptions) {
+  constructor() {
     super();
   }
 

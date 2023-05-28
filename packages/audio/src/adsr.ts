@@ -1,4 +1,4 @@
-import { Flow, Vector, Node, NodeOptions, TerminalType, NodeStyle } from "flow-connect/core";
+import { Vector, Node, NodeOptions, TerminalType, NodeStyle } from "flow-connect/core";
 import { clamp, denormalize } from "flow-connect/utils";
 import {
   Envelope,
@@ -38,7 +38,7 @@ export class ADSR extends Node {
     trigger: false,
   };
 
-  constructor(_flow: Flow, _options: ADSRNodeOptions) {
+  constructor() {
     super();
   }
 
@@ -85,7 +85,7 @@ export class ADSR extends Node {
     });
   }
   setupUI() {
-    let { a: atck, d: dcay, r: rlse } = this.state;
+    let { a: atck, d: dcay, s, r: rlse } = this.state;
     let duration = atck + dcay + rlse;
 
     this.envelopeInput = this.createUI<Envelope, EnvelopeOptions>("core/envelope", {
@@ -93,7 +93,7 @@ export class ADSR extends Node {
       values: [
         Vector.Zero(),
         Vector.create(atck / duration, 1),
-        Vector.create((atck + dcay) / duration, this.state.s),
+        Vector.create((atck + dcay) / duration, s),
         Vector.create(1, 0),
       ],
       style: { pointColor: "#fcba03" },

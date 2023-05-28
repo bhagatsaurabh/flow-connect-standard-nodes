@@ -8,7 +8,7 @@ import {
   NodeStyle,
   TerminalType,
 } from "flow-connect";
-import { Flow, Node } from "flow-connect/core";
+import { Node } from "flow-connect/core";
 import { Log } from "flow-connect/utils";
 import { Toggle, Source as OGSource } from "flow-connect/ui";
 
@@ -24,9 +24,9 @@ export class Source extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState: any = { buffer: null, loop: true, prevChannelCount: -1 };
+  private static DefaultState: any = { file: null, buffer: null, loop: true, prevChannelCount: -1 };
 
-  constructor(_flow: Flow, _options: SourceOptions) {
+  constructor() {
     super();
   }
 
@@ -124,6 +124,7 @@ export class Source extends Node {
       accept: "audio/*",
       height: 25,
       style: { grow: 0.7 },
+      propName: "file",
     });
     this.loopToggle = this.createUI("core/toggle", {
       propName: "loop",

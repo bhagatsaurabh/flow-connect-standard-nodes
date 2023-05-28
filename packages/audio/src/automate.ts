@@ -1,4 +1,4 @@
-import { Flow, Node, NodeOptions, NodeStyle, TerminalType, Vector } from "flow-connect/core";
+import { Node, NodeOptions, NodeStyle, TerminalType, Vector } from "flow-connect/core";
 import { denormalize } from "flow-connect/utils";
 import {
   InputType,
@@ -26,13 +26,21 @@ export class Automate extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = { min: 0, max: 1, value: 0.5, duration: 1, auto: true, loop: false };
+  private static DefaultState = {
+    min: 0,
+    max: 1,
+    value: 0.5,
+    duration: 1,
+    auto: true,
+    loop: false,
+    envelope: [Vector.create(0.2, 0.5), Vector.create(0.5, 0.8), Vector.create(0.9, 0.2)],
+  };
 
   timerId: number;
   scheduleEndTime: number;
   finiteLoop = 2; // how much iterations to schedule in the future
 
-  constructor(_flow: Flow, _options: AutomateOptions = DefaultAutomateOptions()) {
+  constructor() {
     super();
   }
 
@@ -86,6 +94,7 @@ export class Automate extends Node {
       values: envelope,
       input: true,
       output: true,
+      propName: "envelope",
     });
     this.minInput = this.createUI("core/input", {
       propName: "min",

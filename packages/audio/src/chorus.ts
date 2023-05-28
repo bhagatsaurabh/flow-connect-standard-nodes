@@ -1,4 +1,4 @@
-import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
 import { InputType, Input, Slider, Toggle, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect/ui";
 
@@ -14,9 +14,9 @@ export class ChorusEffect extends Node {
   depthInput: Input;
   chorus: any;
 
-  static DefaultState = { feedback: 0.4, delay: 0.0045, depth: 0.7, rate: 0.01, bypass: false };
+  private static DefaultState = { feedback: 0.4, delay: 0.0045, depth: 0.7, rate: 0.01, bypass: false };
 
-  constructor(_flow: Flow, _options: ChorusOptions) {
+  constructor() {
     super();
 
     this.chorus = new (window as any).__tuna__.Chorus();
@@ -73,7 +73,6 @@ export class ChorusEffect extends Node {
     this.outputs[0].on("connect", (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
     this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }
-
   setupUI() {
     this.delaySlider = this.createUI("core/slider", {
       min: 0,

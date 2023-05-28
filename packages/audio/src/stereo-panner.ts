@@ -14,9 +14,9 @@ export class StereoPanner extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = { pan: 0, bypass: false };
+  private static DefaultState = { pan: 0, bypass: false };
 
-  constructor(_flow: Flow, _options: StereoPannerOptions) {
+  constructor() {
     super();
   }
 

@@ -1,4 +1,4 @@
-import { Flow, Node, TerminalType, NodeOptions, NodeStyle } from "flow-connect/core";
+import { Node, TerminalType, NodeOptions, NodeStyle } from "flow-connect/core";
 import { Button } from "flow-connect/ui";
 
 export class ChannelMerger extends Node {
@@ -9,7 +9,7 @@ export class ChannelMerger extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  constructor(_flow: Flow, _options: ChannelMergerOptions) {
+  constructor() {
     super();
   }
 

@@ -23,9 +23,9 @@ export class SpatialPanner extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = { value: Vector.create(0.5, 0.5), z: -1, bypass: false };
+  private static DefaultState = { value: Vector.create(0.5, 0.5), z: -1, bypass: false };
 
-  constructor(_flow: Flow, _options: SpatialPannerOptions) {
+  constructor() {
     super();
   }
 

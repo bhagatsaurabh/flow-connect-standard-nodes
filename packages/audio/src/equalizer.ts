@@ -17,7 +17,7 @@ export class Equalizer extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = {
+  private static DefaultState = {
     eq1: 0,
     eq2: 0,
     eq3: 0,
@@ -31,7 +31,7 @@ export class Equalizer extends Node {
     bypass: false,
   };
 
-  constructor(_flow: Flow, _options: EqualizerOptions) {
+  constructor() {
     super();
   }
 
@@ -53,7 +53,7 @@ export class Equalizer extends Node {
     this.inGain = this.audioCtx.createGain();
     this.outGain = this.audioCtx.createGain();
     this.frequencies.forEach((freq, index) => {
-      let filter = this.audioCtx.createBiquadFilter();
+      const filter = this.audioCtx.createBiquadFilter();
       filter.frequency.value = freq;
       if (index === 0) filter.type = "lowshelf";
       else if (index === 9) filter.type = "highshelf";
@@ -86,7 +86,7 @@ export class Equalizer extends Node {
     }
   }
   setupUI() {
-    let stacks: Stack[] = [];
+    const stacks: Stack[] = [];
     this.frequencies.forEach((_freq, index) => {
       const vSlider = this.createUI<VSlider, VSliderOptions>("core/v-slider", {
         min: -40,

@@ -10,9 +10,9 @@ export class Noise extends Node {
     return this.flow.flowConnect.audioContext;
   }
 
-  static DefaultState = { type: "white" };
+  private static DefaultState = { type: "white" };
 
-  constructor(_flow: Flow, _options: NoiseOptions) {
+  constructor() {
     super();
   }
 

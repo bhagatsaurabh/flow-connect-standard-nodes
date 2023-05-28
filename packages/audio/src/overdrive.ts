@@ -13,9 +13,9 @@ export class OverdriveEffect extends Node {
   bypassToggle: Toggle;
   overdrive: any;
 
-  static DefaultState = { drive: 0.197, outGain: -9.154, curveAmount: 0.979, algorithm: 1, bypass: false };
+  private static DefaultState = { drive: 0.197, outGain: -9.154, curveAmount: 0.979, algorithm: 1, bypass: false };
 
-  constructor(_flow: Flow, _options: OverdriveOptions) {
+  constructor() {
     super();
   }
 
