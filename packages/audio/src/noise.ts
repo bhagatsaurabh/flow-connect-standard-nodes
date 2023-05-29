@@ -61,10 +61,9 @@ export class Noise extends Node {
     ]);
   }
   setupListeners() {
-    this.watch("type", (_oldVal, newVal) => {
-      if (!this.noiseSelect.values.includes(newVal)) newVal = "white";
-      this.noise.port.postMessage(newVal);
-    });
+    this.watch("type", (_oldVal, newVal) =>
+      this.noise.port.postMessage(!this.noiseSelect.values.includes(newVal) ? "white" : newVal)
+    );
 
     this.flow.on("start", () => {
       this.noise.connect(this.outGain);

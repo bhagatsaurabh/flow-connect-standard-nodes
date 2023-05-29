@@ -38,7 +38,7 @@ export class StereoPanner extends Node {
     this.inGain = this.audioCtx.createGain();
     this.outGain = this.audioCtx.createGain();
     this.panner = new StereoPannerNode(this.audioCtx);
-    this.panner.pan.value = this.state.pan;
+    this.panner.pan.value = clamp(this.state.pan, -1, 1);
     this.inputs[0].ref = this.inGain;
     this.outputs[0].ref = this.outGain;
 
@@ -87,8 +87,7 @@ export class StereoPanner extends Node {
   }
   setupListeners() {
     this.watch("pan", (_oldVal, newVal) => {
-      if (newVal < -1 || newVal > 1) this.state.pan = clamp(newVal, -1, 1);
-      this.panner.pan.value = this.state.pan;
+      this.panner.pan.value = clamp(newVal, -1, 1);
     });
     this.watch("bypass", this.setBypass.bind(this));
 

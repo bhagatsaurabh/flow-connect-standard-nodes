@@ -39,7 +39,16 @@ export class ChannelMerger extends Node {
     this.merger.connect(this.outputs[0].ref);
 
     this.setupUI();
+    this.setupListeners();
+  }
 
+  protected process(_inputs: any[]): void {}
+
+  setupUI() {
+    this.addChannelButton = this.createUI("core/button", { text: "Add In Channel", height: 20 });
+    this.ui.append(this.addChannelButton);
+  }
+  setupListeners() {
     this.addChannelButton.on("click", () => {
       this.merger.disconnect();
       this.inputs.forEach((input) => input.ref.disconnect());
@@ -56,16 +65,6 @@ export class ChannelMerger extends Node {
       this.merger.connect(this.outputs[0].ref);
     });
 
-    this.handleAudioConnections();
-  }
-
-  protected process(_inputs: any[]): void {}
-
-  setupUI() {
-    this.addChannelButton = this.createUI("core/button", { text: "Add In Channel", height: 20 });
-    this.ui.append(this.addChannelButton);
-  }
-  handleAudioConnections() {
     this.outputs[0].on("connect", (_, connector) => this.outputs[0].ref.connect(connector.end.ref));
     this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }

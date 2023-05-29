@@ -163,12 +163,12 @@ export class ADSR extends Node {
     ]);
   }
   setupListeners() {
-    this.minInput.on("blur", this.setMinMax);
-    this.maxInput.on("blur", this.setMinMax);
-    this.aInput.on("blur", () => this.adsrChanged());
-    this.dInput.on("blur", () => this.adsrChanged());
-    this.sInput.on("blur", () => this.adsrChanged());
-    this.rInput.on("blur", () => this.adsrChanged());
+    this.watch("min", () => this.setMinMax());
+    this.watch("max", () => this.setMinMax());
+    this.watch("a", () => this.adsrChanged());
+    this.watch("d", () => this.adsrChanged());
+    this.watch("s", () => this.adsrChanged());
+    this.watch("r", () => this.adsrChanged());
 
     this.inputs[0].on("event", () => {
       this.state.trigger = !this.state.trigger;
@@ -215,14 +215,14 @@ export class ADSR extends Node {
   }
 
   adsrChanged() {
-    this.state.s = clamp(this.state.s, 0, 1);
-    const { a, d, r } = this.state;
+    let { a, d, r, s } = this.state;
+    s = clamp(s, 0, 1);
     const totalDur = a + d + r;
 
     this.envelopeInput.value = [
       Vector.Zero(),
       Vector.create(a / totalDur, 1),
-      Vector.create((a + d) / totalDur, this.state.s),
+      Vector.create((a + d) / totalDur, s),
       Vector.create(1, 0),
     ];
   }

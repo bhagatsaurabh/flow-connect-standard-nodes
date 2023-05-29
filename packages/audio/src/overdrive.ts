@@ -38,10 +38,10 @@ export class OverdriveEffect extends Node {
     this.inputs[0].ref = this.outputs[0].ref = this.overdrive;
     this.setupUI();
     Object.assign(this.overdrive, {
-      drive: this.state.drive,
-      outputGain: this.state.outGain,
-      curveAmount: this.state.curveAmount,
-      algorithmIndex: parseInt(this.state.algorithm) - 1,
+      drive: clamp(this.state.drive, 0, 1),
+      outputGain: clamp(this.state.outGain, -46, 0),
+      curveAmount: clamp(this.state.curveAmount, 0, 1),
+      algorithmIndex: clamp(parseInt(this.state.algorithm), 1, 6) - 1,
     });
 
     this.setupListeners();
@@ -131,22 +131,18 @@ export class OverdriveEffect extends Node {
 
   setupListeners() {
     this.watch("drive", (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 1) this.state.drive = clamp(newVal, 0, 1);
-      this.overdrive.drive = this.state.drive;
+      this.overdrive.drive = clamp(newVal, 0, 1);
     });
     this.watch("outGain", (_oldVal, newVal) => {
-      if (newVal < -46 || newVal > 0) this.state.outGain = clamp(newVal, -46, 0);
-      this.overdrive.outputGain = this.state.outGain;
+      this.overdrive.outputGain = clamp(newVal, -46, 0);
     });
     this.watch("curveAmount", (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 1) this.state.curveAmount = clamp(newVal, 0, 1);
-      this.overdrive.curveAmount = this.state.curveAmount;
+      this.overdrive.curveAmount = clamp(newVal, 0, 1);
     });
     this.watch("algorithm", (_oldVal, newVal) => {
       newVal = parseInt(newVal);
       if (!newVal) newVal = 1;
-      if (newVal < 1 || newVal > 6) newVal = clamp(newVal, 1, 6);
-      this.overdrive.algorithmIndex = newVal - 1;
+      this.overdrive.algorithmIndex = clamp(newVal, 1, 6) - 1;
     });
     this.watch("bypass", (_oldVal, newVal) => (this.overdrive.bypass = newVal));
 

@@ -77,7 +77,10 @@ export class BitcrusherEffect extends Node {
     }
   }
   paramsChanged() {
-    this.bitcrusher.port.postMessage({ bits: this.state.bits, normFreq: this.state.normFreq });
+    this.bitcrusher.port.postMessage({
+      bits: clamp(Math.floor(this.state.bits), 1, 16),
+      normFreq: clamp(this.state.normFreq, 0, 1),
+    });
   }
   setupUI() {
     this.bitsSlider = this.createUI("core/slider", {
@@ -132,19 +135,9 @@ export class BitcrusherEffect extends Node {
     ]);
   }
   setupListeners() {
-    this.bitsSlider.on("change", () => this.paramsChanged());
-    this.normFreqSlider.on("change", () => this.paramsChanged());
-    this.bitsInput.on("change", () => this.paramsChanged());
-    this.normFreqInput.on("change", () => this.paramsChanged());
     this.watch("bypass", () => this.setBypass());
-    this.watch("bits", () => {
-      if (this.state.bits < 1 || this.state.bits > 16 || !Number.isInteger(this.state.bits)) {
-        this.state.bits = clamp(Math.floor(this.state.bits), 1, 16);
-      }
-    });
-    this.watch("normFreq", () => {
-      if (this.state.normFreq < 0 || this.state.normFreq > 1) this.state.normFreq = clamp(this.state.normFreq, 0, 1);
-    });
+    this.watch("bits", () => this.paramsChanged());
+    this.watch("normFreq", () => this.paramsChanged());
 
     this.flow.on("start", () => this.paramsChanged());
 

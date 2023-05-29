@@ -124,9 +124,8 @@ export class WaveformAnalyser extends Node {
     return true;
   }
   setupListeners() {
-    this.watch("fftSize", (_oldVal, newVal) => {
-      if (newVal < 5 || newVal > 15) this.state.fftSize = clamp(Math.round(newVal), 5, 15);
-      let actualFFTSize = this.getFFTSize();
+    this.watch("fftSize", () => {
+      const actualFFTSize = this.getFFTSize();
       this.fftSizeLabel.text = actualFFTSize;
       this.analyser.fftSize = actualFFTSize;
     });

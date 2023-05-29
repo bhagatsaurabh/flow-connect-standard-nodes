@@ -61,13 +61,7 @@ export class BiquadFilter extends Node {
 
     this.setBypass();
     this.setupUI();
-
-    this.typeSelect.on("change", () => {
-      this.biquadFilter.type = this.state.filterType;
-    });
-    this.watch("bypass", () => this.setBypass());
-
-    this.handleAudioConnections();
+    this.setupListeners();
   }
 
   protected process(_inputs: any[]): void {}
@@ -102,7 +96,10 @@ export class BiquadFilter extends Node {
       }),
     ]);
   }
-  handleAudioConnections() {
+  setupListeners() {
+    this.watch("filterType", () => (this.biquadFilter.type = this.state.filterType));
+    this.watch("bypass", () => this.setBypass());
+
     this.outputs[0].on("connect", (_, connector) => this.outputs[0].ref.connect(connector.end.ref));
     this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }

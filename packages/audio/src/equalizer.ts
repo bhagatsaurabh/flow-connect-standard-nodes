@@ -121,15 +121,13 @@ export class Equalizer extends Node {
       }),
     ]);
   }
+  setEq(index: number, newVal: number) {
+    this.filters[index - 1].gain.value = clamp(newVal, -40, 40);
+  }
   setupListeners() {
-    this.watch("bypass", this.setBypass.bind(this));
+    this.watch("bypass", () => this.setBypass());
     for (let i = 1; i <= 10; ++i) {
-      this.watch(`eq${i}`, (_oldVal, newVal) => {
-        if (!isInRange(newVal, -40, 40)) {
-          this.state[`eq${i}`] = clamp(newVal, -40, 40);
-        }
-        this.filters[i - 1].gain.value = this.state[`eq${i}`];
-      });
+      this.watch(`eq${i}`, (_, newVal) => this.setEq(i, newVal));
     }
 
     this.outputs[0].on("connect", (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));

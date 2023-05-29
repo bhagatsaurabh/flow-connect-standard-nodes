@@ -118,15 +118,16 @@ export class Distorter extends Node {
       }),
     ]);
   }
+  setOversample() {
+    const oversample = !this.oversampleOptions.includes(this.state.oversample) ? "none" : this.state.oversample;
+    this.distorter.oversample = oversample;
+  }
+  setAmount() {
+    this.distorter.curve = this.makeDistortionCurve(clamp(parseInt(this.state.amount), 0, 1000));
+  }
   setupListeners() {
-    this.watch("oversample", (_oldVal, newVal) => {
-      if (!this.oversampleOptions.includes(newVal)) this.state.oversample = "none";
-      this.distorter.oversample = this.state.oversample;
-    });
-    this.watch("amount", (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 1000) this.state.amount = clamp(parseInt(newVal), 0, 1000);
-      this.distorter.curve = this.makeDistortionCurve(parseInt(this.state.amount));
-    });
+    this.watch("oversample", () => this.setOversample());
+    this.watch("amount", () => this.setAmount());
     this.watch("bypass", this.setBypass.bind(this));
 
     this.outputs[0].on("connect", (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));

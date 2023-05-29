@@ -150,18 +150,18 @@ export class Automate extends Node {
     ]);
   }
   setupListeners() {
-    this.minInput.on("blur", () => {
+    this.watch("min", () => {
       this.setMinMax();
       this.startAutomation();
     });
-    this.maxInput.on("blur", () => {
+    this.watch("max", () => {
       this.setMinMax();
       this.startAutomation();
     });
+    this.watch("duration", () => this.startAutomation());
+    this.watch("loop", () => this.startAutomation());
+    this.watch("envelope", () => this.startAutomation());
 
-    this.envelopeInput.on("change", () => this.startAutomation());
-    this.durationInput.on("change", () => this.startAutomation());
-    this.loopToggle.on("change", () => this.startAutomation());
     this.inputs[0].on("event", () => this.startAutomation());
 
     this.flow.on("start", () => this.state.auto && this.startAutomation());

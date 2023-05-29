@@ -120,8 +120,7 @@ export class SpatialPanner extends Node {
       this.panner.positionY.value = y;
     });
     this.watch("z", (_oldVal, newVal) => {
-      if (newVal < -10000 || newVal > 10000) this.state.z = clamp(parseInt(newVal), -10000, 10000);
-      this.panner.positionZ.value = this.state.z;
+      this.panner.positionZ.value = clamp(parseInt(newVal), -10000, 10000);
     });
     this.watch("bypass", this.setBypass.bind(this));
 

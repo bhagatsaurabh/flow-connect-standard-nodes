@@ -51,11 +51,11 @@ export class DelayEffect extends Node {
     this.feedbackNode = this.audioCtx.createGain();
     this.state.filterType = "lowpass";
 
-    this.delay.delayTime.value = this.state.delayTime / 1000;
-    this.feedbackNode.gain.value = this.state.feedback;
-    this.filter.frequency.value = this.state.cutoff;
-    this.wetGain.gain.value = this.state.wet;
-    this.dryGain.gain.value = this.state.dry;
+    this.setDelay();
+    this.feedbackNode.gain.value = clamp(this.state.feedback, 0, 0.9);
+    this.filter.frequency.value = clamp(this.state.cutoff, 20, 20000);
+    this.wetGain.gain.value = clamp(this.state.wet, 0, 1);
+    this.dryGain.gain.value = clamp(this.state.dry, 0, 1);
 
     this.inputs[0].ref = this.inGain;
     this.outputs[0].ref = this.outGain;
@@ -178,49 +178,27 @@ export class DelayEffect extends Node {
       }),
     ]);
   }
+  setDelay() {
+    this.delay.delayTime.value = clamp(this.state.delayTime, 10, 10000) / 1000;
+  }
+  setFeedback() {
+    this.feedbackNode.gain.setTargetAtTime(clamp(this.state.feedback, 0, 0.9), this.audioCtx.currentTime, 0.01);
+  }
+  setCutOff() {
+    this.filter.frequency.setTargetAtTime(clamp(this.state.cutoff, 20, 20000), this.audioCtx.currentTime, 0.01);
+  }
+  setWet() {
+    this.wetGain.gain.setTargetAtTime(clamp(this.state.wet, 0, 1), this.audioCtx.currentTime, 0.01);
+  }
+  setDry() {
+    this.dryGain.gain.setTargetAtTime(clamp(this.state.dry, 0, 1), this.audioCtx.currentTime, 0.01);
+  }
   setupListeners() {
-    const delayChanged = () => (this.delay.delayTime.value = this.state.delayTime / 1000);
-    this.delaySlider.on("change", delayChanged);
-    this.watch("delayTime", () => {
-      if (this.state.delayTime < 10 || this.state.delayTime > 10000) {
-        this.state.delayTime = clamp(this.state.delayTime, 10, 10000);
-        delayChanged();
-      }
-    });
-    const feedbackChanged = () =>
-      this.feedbackNode.gain.setTargetAtTime(this.state.feedback, this.audioCtx.currentTime, 0.01);
-    this.feedbackSlider.on("change", feedbackChanged);
-    this.watch("feedback", () => {
-      if (this.state.feedback < 0 || this.state.feedback > 0.9) {
-        this.state.feedback = clamp(this.state.feedback, 0, 0.9);
-        feedbackChanged();
-      }
-    });
-    const cutoffChanged = () =>
-      this.filter.frequency.setTargetAtTime(this.state.cutoff, this.audioCtx.currentTime, 0.01);
-    this.cutoffSlider.on("change", cutoffChanged);
-    this.watch("cutoff", () => {
-      if (this.state.cutoff < 20 || this.state.cutoff > 20000) {
-        this.state.cutoff = clamp(this.state.cutoff, 20, 20000);
-        cutoffChanged();
-      }
-    });
-    const wetChanged = () => this.wetGain.gain.setTargetAtTime(this.state.wet, this.audioCtx.currentTime, 0.01);
-    this.wetSlider.on("change", wetChanged);
-    this.watch("wet", () => {
-      if (this.state.wet < 0 || this.state.wet > 1) {
-        this.state.wet = clamp(this.state.wet, 0, 1);
-        wetChanged();
-      }
-    });
-    const dryChanged = () => this.dryGain.gain.setTargetAtTime(this.state.dry, this.audioCtx.currentTime, 0.01);
-    this.drySlider.on("change", dryChanged);
-    this.watch("dry", () => {
-      if (this.state.dry < 0 || this.state.dry > 1) {
-        this.state.dry = clamp(this.state.dry, 0, 1);
-        dryChanged();
-      }
-    });
+    this.watch("delayTime", () => this.setDelay());
+    this.watch("feedback", () => this.setFeedback());
+    this.watch("cutoff", () => this.setCutOff());
+    this.watch("wet", () => this.setWet());
+    this.watch("dry", () => this.setDry());
     this.watch("bypass", () => this.setBypass());
 
     this.outputs[0].on("connect", (_, connector) => this.outputs[0].ref.connect(connector.end.ref));

@@ -55,7 +55,10 @@ export class MoogEffect extends Node {
   protected process(_inputs: any[]): void {}
 
   paramsChanged() {
-    this.moog.port.postMessage({ cutoff: this.state.cutoff, resonance: this.state.resonance });
+    this.moog.port.postMessage({
+      cutoff: clamp(this.state.cutoff, 0.0001, 1.0),
+      resonance: clamp(this.state.resonance, 0, 4.0),
+    });
   }
   setBypass() {
     if (this.state.bypass) {
@@ -115,16 +118,8 @@ export class MoogEffect extends Node {
   }
   setupListeners() {
     this.watch("bypass", () => this.setBypass());
-    this.watch("cutoff", () => {
-      if (this.state.cutoff < 0.0001 || this.state.cutoff > 1.0)
-        this.state.cutoff = clamp(this.state.cutoff, 0.0001, 1.0);
-      this.paramsChanged();
-    });
-    this.watch("resonance", () => {
-      if (this.state.resonance < 0 || this.state.resonance > 4.0)
-        this.state.resonance = clamp(this.state.resonance, 0, 4.0);
-      this.paramsChanged();
-    });
+    this.watch("cutoff", () => this.paramsChanged());
+    this.watch("resonance", () => this.paramsChanged());
 
     this.flow.on("start", () => this.paramsChanged());
 

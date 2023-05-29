@@ -145,8 +145,7 @@ export class Oscillator extends Node {
     this.inputsUI[1].on("data", (_inst, data) => typeof data === "number" && (this.state.detune = data));
 
     this.watch("frequency", (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 20000) newVal = clamp(newVal, 0, 20000);
-      if (!this.freqHozLayout.disabled) this.oscillator && (this.oscillator.frequency.value = newVal);
+      if (!this.freqHozLayout.disabled) this.oscillator && (this.oscillator.frequency.value = clamp(newVal, 0, 20000));
     });
     this.watch("detune", (_oldVal, newVal) => {
       if (!this.detuneHozLayout.disabled) this.oscillator && (this.oscillator.detune.value = newVal);

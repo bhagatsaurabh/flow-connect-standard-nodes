@@ -31,7 +31,7 @@ export class AudioBufferSource extends Node {
     this.style = { ...DefaultAudioBufferSourceStyle(), ...style };
 
     this.setupUI();
-    this.fileInput.on("change", () => this.processFile());
+    this.setupListeners();
   }
 
   protected process(_inputs: any[]): void {
@@ -53,25 +53,28 @@ export class AudioBufferSource extends Node {
       })
     );
   }
+  setupListeners() {
+    this.watch("file", () => this.processFile());
+  }
 
   async processFile() {
-    const arrayBufferCache = this.flow.flowConnect.arrayBufferCache;
+    const flowConnect = this.flow.flowConnect;
     const file = this.state.file;
     if (!file) return;
 
-    let cached = arrayBufferCache.get(file.name + file.type);
+    let cached = flowConnect.getCache("array", file.name + file.type);
     if (!cached) {
       cached = await file.arrayBuffer();
-      arrayBufferCache.set(file.name + file.type, cached);
+      flowConnect.setCache("array", file.name + file.type, cached);
     }
-    this.processArrayBuffer(cached);
+    await this.processArrayBuffer(cached);
   }
   async processArrayBuffer(arrayBuffer: ArrayBuffer) {
-    const audioBufferCache = this.flow.flowConnect.audioBufferCache;
-    let cached = audioBufferCache.get(arrayBuffer);
+    const flowConnect = this.flow.flowConnect;
+    let cached = flowConnect.getCache("audio", arrayBuffer);
     if (!cached) {
       cached = await this.audioCtx.decodeAudioData(arrayBuffer);
-      audioBufferCache.set(arrayBuffer, cached);
+      flowConnect.setCache("audio", arrayBuffer, cached);
     }
     this.state.buffer = cached;
     this.setOutputs(0, this.state.buffer);

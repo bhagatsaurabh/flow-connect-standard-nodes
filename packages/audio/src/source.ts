@@ -73,21 +73,21 @@ export class Source extends Node {
     });
   }
   async processFile(file: File) {
-    let cached = this.flow.flowConnect.arrayBufferCache.get(file.name + file.type);
+    let cached = this.flow.flowConnect.getCache("array", file.name + file.type);
     if (!cached) {
       cached = await file.arrayBuffer();
-      this.flow.flowConnect.arrayBufferCache.set(file.name + file.type, cached);
+      this.flow.flowConnect.setCache("array", file.name + file.type, cached);
     }
-    this.processArrayBuffer(cached);
+    await this.processArrayBuffer(cached);
   }
   async processArrayBuffer(arrayBuffer: ArrayBuffer) {
-    let cached = this.flow.flowConnect.audioBufferCache.get(arrayBuffer);
+    let cached = this.flow.flowConnect.getCache("audio", arrayBuffer);
     if (!cached) {
       cached = await this.flow.flowConnect.audioContext.decodeAudioData(arrayBuffer);
-      this.flow.flowConnect.audioBufferCache.set(arrayBuffer, cached);
+      this.flow.flowConnect.setCache("audio", arrayBuffer, cached);
 
       // If no. of channels has been changed, start an event propagation that will notify
-      // every node that has a direct/indirect connection in the graph from this node
+      // every node that has a direct/indirect connection down the graph from this node
       if (this.state.prevChannelCount < 0 || this.state.prevChannelCount !== cached.numberOfChannels) {
         this.propagateChannelChange(cached.numberOfChannels);
       }
@@ -146,12 +146,21 @@ export class Source extends Node {
     ]);
   }
   setupListeners() {
-    this.loopToggle.on("change", () => {
+    this.watch("loop", () => {
       if (this.state.loop) {
         this.stopSource();
         this.playSource();
-      } else this.source && (this.source.loop = this.state.loop);
+      } else {
+        this.source && (this.source.loop = this.state.loop);
+      }
     });
+    this.watch("file", (_oldVal: File, newVal: File) => {
+      newVal && this.processFile(newVal);
+    });
+
+    this.flow.on("start", () => this.playSource());
+    this.flow.on("stop", () => this.stopSource());
+
     this.inputs[0].on("event", (_, data) => {
       if (!(data instanceof ArrayBuffer)) {
         Log.error("Data received on Audio Source Node is not of type ArrayBuffer");
@@ -159,12 +168,6 @@ export class Source extends Node {
       }
       this.processArrayBuffer(data);
     });
-    this.fileInput.on("change", (_inst, _oldVal: File, newVal: File) => this.processFile(newVal));
-    this.fileInput.on("upload", (_inst, _oldVal: File, newVal: File) => this.processFile(newVal));
-
-    this.flow.on("start", () => this.playSource());
-    this.flow.on("stop", () => this.stopSource());
-
     this.outputs[0].on("connect", (_, connector) => {
       this.state.buffer && this.propagateChannelChange(this.state.buffer.numberOfChannels);
       this.outputs[0].ref.connect(connector.end.ref);

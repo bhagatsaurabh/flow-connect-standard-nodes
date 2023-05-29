@@ -123,7 +123,7 @@ export class Metronome extends Node {
 
     let audioSource = new AudioBufferSourceNode(this.flow.flowConnect.audioContext);
     audioSource.buffer = this.state.buffer;
-    audioSource.loop = true;
+    audioSource.loop = this.state.loop;
     this.source = audioSource;
 
     audioSource.loopEnd = 1 / (clamp(this.state.bpm, 30, 300) / 60);
@@ -139,17 +139,19 @@ export class Metronome extends Node {
     }
   }
   setupListeners() {
-    this.bpmInput.on("change", () => {
+    this.watch("bpm", () => {
       if (this.source) {
         this.source.loopEnd = 1 / (clamp(this.state.bpm, 30, 300) / 60);
       }
     });
-    this.freqInput.on("change", () => {
+    this.watch("frequency", () => {
       if (this.source) {
         this.stopSource();
         this.fillBuffer();
         this.playSource();
-      } else this.fillBuffer();
+      } else {
+        this.fillBuffer();
+      }
     });
     this.inputs[0].on("event", () => this.playSource());
 

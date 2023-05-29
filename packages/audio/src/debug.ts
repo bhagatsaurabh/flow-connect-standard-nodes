@@ -38,9 +38,6 @@ export class Debug extends Node {
       numberOfInputs: 1,
       numberOfOutputs: 1,
     });
-    this.debugNode.port.onmessage = (e: any) => {
-      if (this.flow.state !== FlowState.Stopped) this.setOutputs(1, e.data);
-    };
     this.inputs[0].ref.connect(this.debugNode);
     this.debugNode.connect(this.outputs[0].ref);
 
@@ -50,6 +47,10 @@ export class Debug extends Node {
   protected process(_nputs: any[]): void {}
 
   setupListeners() {
+    this.debugNode.port.onmessage = (e: any) => {
+      if (this.flow.state !== FlowState.Stopped) this.setOutputs(1, e.data);
+    };
+
     this.outputs[0].on("connect", (_, connector) => this.outputs[0].ref.connect(connector.end.ref));
     this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }

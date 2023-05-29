@@ -51,28 +51,6 @@ export class ChorusEffect extends Node {
 
   protected process(_inputs: any[]): void {}
 
-  setupListeners() {
-    this.watch("delay", (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 1) this.state.delay = clamp(newVal, 0, 1);
-      this.chorus.delay = this.state.delay;
-    });
-    this.watch("depth", (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 1) this.state.depth = clamp(newVal, 0, 1);
-      this.chorus.depth = this.state.depth;
-    });
-    this.watch("feedback", (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 0.95) this.state.feedback = clamp(newVal, 0, 0.95);
-      this.chorus.feedback = this.state.feedback;
-    });
-    this.watch("rate", (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 0.1) this.state.rate = clamp(newVal, 0, 0.1);
-      this.chorus.rate = this.state.rate;
-    });
-    this.watch("bypass", (_oldVal, newVal) => (this.chorus.bypass = newVal));
-
-    this.outputs[0].on("connect", (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
-    this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
-  }
   setupUI() {
     this.delaySlider = this.createUI("core/slider", {
       min: 0,
@@ -157,6 +135,27 @@ export class ChorusEffect extends Node {
         style: { spacing: 5 },
       }),
     ]);
+  }
+  setConfig(type: "delay" | "depth" | "feedback" | "rate" | "all", min?: number, max?: number) {
+    if (type === "all") {
+      this.chorus.delay = clamp(this.state.delay, 0, 1);
+      this.chorus.depth = clamp(this.state.depth, 0, 1);
+      this.chorus.feedback = clamp(this.state.feedback, 0, 0.95);
+      this.chorus.rate = clamp(this.state.rate, 0, 0.1);
+      return;
+    }
+
+    this.chorus[type] = clamp(this.state[type], min, max);
+  }
+  setupListeners() {
+    this.watch("delay", () => this.setConfig("delay", 0, 1));
+    this.watch("depth", () => this.setConfig("depth", 0, 1));
+    this.watch("feedback", () => this.setConfig("feedback", 0, 0.95));
+    this.watch("rate", () => this.setConfig("rate", 0, 0.1));
+    this.watch("bypass", () => (this.chorus.bypass = this.state.bypass));
+
+    this.outputs[0].on("connect", (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
+    this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }
 }
 

@@ -43,7 +43,6 @@ export class ChannelSplitter extends Node {
     this.outputs[0].on("connect", (_inst, cntr) => this.outputs[0].ref.connect(cntr.end.ref));
     this.outputs[0].on("disconnect", (_inst, _cntr, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }
-
   checkChannels(newNoOfChannels: number) {
     if (this.oldNoOfChannels === newNoOfChannels) return;
 

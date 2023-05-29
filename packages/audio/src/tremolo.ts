@@ -37,9 +37,9 @@ export class TremoloEffect extends Node {
     this.inputs[0].ref = this.outputs[0].ref = this.tremolo;
 
     Object.assign(this.tremolo, {
-      intensity: this.state.intensity,
-      stereoPhase: this.state.stereoPhase,
-      rate: this.state.rate,
+      intensity: clamp(this.state.intensity, 0, 1),
+      stereoPhase: clamp(this.state.stereoPhase, 0, 180),
+      rate: clamp(this.state.rate, 0.1, 11),
     });
 
     this.setupUI();
@@ -115,16 +115,13 @@ export class TremoloEffect extends Node {
   }
   setupListeners() {
     this.watch("intensity", (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 1) this.state.intensity = clamp(newVal, 0, 1);
-      this.tremolo.intensity = this.state.intensity;
+      this.tremolo.intensity = clamp(newVal, 0, 1);
     });
     this.watch("stereoPhase", (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 180) this.state.stereoPhase = clamp(newVal, 0, 180);
-      this.tremolo.stereoPhase = this.state.stereoPhase;
+      this.tremolo.stereoPhase = clamp(newVal, 0, 180);
     });
     this.watch("rate", (_oldVal, newVal) => {
-      if (newVal < 0.1 || newVal > 11) this.state.rate = clamp(newVal, 0.1, 11);
-      this.tremolo.rate = this.state.rate;
+      this.tremolo.rate = clamp(newVal, 0.1, 11);
     });
     this.watch("bypass", (_oldVal, newVal) => (this.tremolo.bypass = newVal));
 

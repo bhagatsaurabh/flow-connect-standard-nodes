@@ -70,6 +70,7 @@ export class Convolver extends Node {
   }
   setupListeners() {
     this.watch("bypass", () => this.setBypass());
+
     this.inputs[1].on("data", (_inst, data) => {
       this.convolver.buffer = data;
     });

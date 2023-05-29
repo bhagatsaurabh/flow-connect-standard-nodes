@@ -128,13 +128,13 @@ export class FrequencyAnalyser extends Node {
 
     return true;
   }
+  setFFTSize() {
+    const actualFFTSize = this.getFFTSize();
+    this.fftSizeLabel.text = actualFFTSize;
+    this.analyser.fftSize = actualFFTSize;
+  }
   setupListeners() {
-    this.watch("fftSize", (_oldVal, newVal) => {
-      if (newVal < 5 || newVal > 15) this.state.fftSize = clamp(Math.round(newVal), 5, 15);
-      let actualFFTSize = this.getFFTSize();
-      this.fftSizeLabel.text = actualFFTSize;
-      this.analyser.fftSize = actualFFTSize;
-    });
+    this.watch("fftSize", () => this.setFFTSize());
     this.display.on("over", (event: UIEvent) => {
       this.state.currFreq =
         (Math.floor(

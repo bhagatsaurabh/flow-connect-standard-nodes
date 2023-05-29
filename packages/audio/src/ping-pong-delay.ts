@@ -1,4 +1,4 @@
-import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
 import { InputType, Input, Slider, Toggle, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect/ui";
 
@@ -39,10 +39,10 @@ export class PingPongEffect extends Node {
     this.inputs[0].ref = this.outputs[0].ref = this.pingPong;
 
     Object.assign(this.pingPong, {
-      delayTimeLeft: this.state.delayLeft,
-      delayTimeRight: this.state.delayRight,
-      feedback: this.state.feedback,
-      wetLevel: this.state.wet,
+      delayTimeLeft: clamp(this.state.delayLeft, 1, 10000),
+      delayTimeRight: clamp(this.state.delayRight, 1, 10000),
+      feedback: clamp(this.state.feedback, 0, 1),
+      wetLevel: clamp(this.state.wet, 0, 1),
     });
 
     this.setupUI();
@@ -138,20 +138,16 @@ export class PingPongEffect extends Node {
   }
   setupListeners() {
     this.watch("delayLeft", (_oldVal, newVal) => {
-      if (newVal < 1 || newVal > 10000) this.state.delayLeft = clamp(newVal, 1, 10000);
-      this.pingPong.delayTimeLeft = this.state.delayLeft;
+      this.pingPong.delayTimeLeft = clamp(newVal, 1, 10000);
     });
     this.watch("delayRight", (_oldVal, newVal) => {
-      if (newVal < 1 || newVal > 10000) this.state.delayRight = clamp(newVal, 1, 10000);
-      this.pingPong.delayTimeRight = this.state.delayRight;
+      this.pingPong.delayTimeRight = clamp(newVal, 1, 10000);
     });
     this.watch("feedback", (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 1) this.state.feedback = clamp(newVal, 0, 1);
-      this.pingPong.feedback = this.state.feedback;
+      this.pingPong.feedback = clamp(newVal, 0, 1);
     });
     this.watch("wet", (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 1) this.state.wet = clamp(newVal, 0, 1);
-      this.pingPong.wetLevel = this.state.wet;
+      this.pingPong.wetLevel = clamp(newVal, 0, 1);
     });
     this.watch("bypass", (_oldVal, newVal) => (this.pingPong.bypass = newVal));
 

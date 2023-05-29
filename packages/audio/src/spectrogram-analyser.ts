@@ -26,6 +26,32 @@ export class SpectrogramAnalyser extends Node {
 
   constructor() {
     super();
+
+    this.colorScaleToInterp["Heated Metal"] = Color.scale([
+      [0, 0, 0, 1],
+      [160, 32, 240, 1],
+      [255, 0, 0, 1],
+      [255, 165, 0, 1],
+      [255, 255, 0, 1],
+      [255, 255, 255, 1],
+    ]);
+    this.colorScaleToInterp["Monochrome"] = Color.scale([
+      [0, 0, 0, 1],
+      [255, 255, 255, 1],
+    ]);
+    this.colorScaleToInterp["Inverted Monochrome"] = Color.scale([
+      [255, 255, 255, 1],
+      [0, 0, 0, 1],
+    ]);
+    this.colorScaleToInterp["Spectrum"] = Color.scale([
+      [135, 206, 235, 1],
+      [0, 255, 0, 1],
+      [255, 255, 0, 1],
+      [255, 165, 0, 1],
+      [255, 0, 0, 1],
+    ]);
+
+    this.currInterpolator = this.colorScaleToInterp["Heated Metal"];
   }
 
   protected setupIO(_options: SpectrogramAnalyserOptions): void {
@@ -128,45 +154,18 @@ export class SpectrogramAnalyser extends Node {
     return true;
   }
   setupListeners() {
-    this.watch("fftSize", (_oldVal, newVal) => {
-      if (newVal < 5 || newVal > 15) this.state.fftSize = clamp(Math.round(newVal), 5, 15);
-      let actualFFTSize = this.getFFTSize();
+    this.watch("fftSize", () => {
+      const actualFFTSize = this.getFFTSize();
       this.fftSizeLabel.text = actualFFTSize;
       this.analyser.fftSize = actualFFTSize;
     });
     this.watch("colorScale", (_oldVal, newVal) => {
-      if (!this.colorScales.includes(newVal)) this.state.colorScale = this.colorScales[0];
-      this.currInterpolator = this.colorScaleToInterp[this.state.colorScale];
+      this.currInterpolator =
+        this.colorScaleToInterp[!this.colorScales.includes(newVal) ? this.colorScales[0] : this.state.colorScale];
     });
 
     this.outputs[0].on("connect", (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
     this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
-
-    this.colorScaleToInterp["Heated Metal"] = Color.scale([
-      [0, 0, 0, 1],
-      [160, 32, 240, 1],
-      [255, 0, 0, 1],
-      [255, 165, 0, 1],
-      [255, 255, 0, 1],
-      [255, 255, 255, 1],
-    ]);
-    this.colorScaleToInterp["Monochrome"] = Color.scale([
-      [0, 0, 0, 1],
-      [255, 255, 255, 1],
-    ]);
-    this.colorScaleToInterp["Inverted Monochrome"] = Color.scale([
-      [255, 255, 255, 1],
-      [0, 0, 0, 1],
-    ]);
-    this.colorScaleToInterp["Spectrum"] = Color.scale([
-      [135, 206, 235, 1],
-      [0, 255, 0, 1],
-      [255, 255, 0, 1],
-      [255, 165, 0, 1],
-      [255, 0, 0, 1],
-    ]);
-
-    this.currInterpolator = this.colorScaleToInterp["Heated Metal"];
 
     this.display.displayConfigs[0].shouldRender = false;
     this.flow.on("start", () => {
