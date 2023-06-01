@@ -1,42 +1,59 @@
-import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
+import { Node, NodeOptions, TerminalType } from "flow-connect/core";
 import { Log } from "flow-connect/utils";
-import { InputType, Input } from "flow-connect/ui";
+import { InputType, Input, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect/ui";
 
 export class JsonSource extends Node {
   input: Input;
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'JSON Source', options.position || new Vector(50, 50), options.width || 150, [],
-      [{ name: 'value', dataType: 'any' }],
-      {
-        state: options.state ? { ...options.state } : {},
-        style: options.style || { rowHeight: 10 },
-        terminalStyle: options.terminalStyle || {}
-      }
-    );
+  constructor() {
+    super();
+  }
+
+  protected setupIO(): void {
+    this.addTerminals([{ type: TerminalType.OUT, name: "value", dataType: "any" }]);
+  }
+
+  protected created(options: NodeOptions): void {
+    const { width = 150, name = "JSON Source", style = {}, state = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.style = { rowHeight: 10, ...style };
+    this.state = { value: "", ...state };
 
     this.setupUI();
-
-    this.input.on('change', () => this.process());
-    this.on('process', () => this.process());
+    this.setupListeners();
   }
 
-  process() {
-    if (!this.input.value || this.input.value === '') return;
+  protected process() {
+    if (!this.input.value) return;
+
     try {
-      let value = JSON.parse(this.input.value as string);
+      const value = JSON.parse(this.input.value as string);
       this.setOutputs(0, value);
     } catch (error) {
-      this.input.inputEl.style.backgroundColor = 'red';
-      Log.error("StandardNode 'JsonSource' json parse error", error);
+      this.input.inputEl.style.backgroundColor = "red";
+      Log.error("JSON parse error", error);
     }
   }
+
   setupUI() {
-    this.input = this.createInput({ value: '', input: true, output: true, height: 20, style: { type: InputType.Text, grow: .7 } });
-    this.ui.append(this.createHozLayout([
-      this.createLabel('Value', { style: { grow: .3 } }),
-      this.input
-    ], { style: { spacing: 20 } }));
+    this.input = this.createUI("core/input", {
+      propName: "value",
+      value: "",
+      input: true,
+      output: true,
+      height: 20,
+      style: { type: InputType.Text, grow: 0.7 },
+    });
+    this.ui.append(
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [this.createUI("core/label", { text: "Value", style: { grow: 0.3 } }), this.input],
+        style: { spacing: 20 },
+      })
+    );
+  }
+  setupListeners() {
+    this.watch("value", () => this.process());
   }
 }

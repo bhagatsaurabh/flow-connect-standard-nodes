@@ -1,21 +1,28 @@
-import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
+import { Node, NodeOptions, TerminalType } from "flow-connect/core";
 
 export class Property extends Node {
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Property', options.position || new Vector(50, 50), options.width || 130,
-      [{ name: 'object', dataType: 'any' }, { name: 'key', dataType: 'string' }],
-      [{ name: 'value', dataType: 'any' }],
-      {
-        state: options.state ? { ...options.state } : {},
-        style: options.style || { rowHeight: 10 },
-        terminalStyle: options.terminalStyle || {}
-      }
-    );
+  constructor() {
+    super();
+  }
 
-    this.on('process', (_, inputs) => {
-      if (!inputs[0]) return;
-      this.setOutputs(0, inputs[0][inputs[1]]);
-    });
+  protected setupIO(): void {
+    this.addTerminals([
+      { type: TerminalType.IN, name: "object", dataType: "any" },
+      { type: TerminalType.IN, name: "key", dataType: "string" },
+      { type: TerminalType.OUT, name: "value", dataType: "any" },
+    ]);
+  }
+
+  protected created(options: NodeOptions): void {
+    const { width = 130, name = "Property", style = {}, state = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.style = { rowHeight: 10, ...style };
+  }
+
+  protected process(inputs: any[]): void {
+    if (!inputs[0]) return;
+    this.setOutputs(0, inputs[0][inputs[1]]);
   }
 }

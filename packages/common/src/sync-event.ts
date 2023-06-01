@@ -1,52 +1,78 @@
-import { Flow, Vector, Terminal, TerminalType, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
+import { exists } from "flow-connect";
+import { TerminalType, Node, NodeOptions } from "flow-connect/core";
 import { Button } from "flow-connect/ui";
 
 export class SyncEvent extends Node {
   addButton: Button;
+  hold: Record<string, any> = {};
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}, events?: number) {
-    super(flow, options.name || 'Sync Event', options.position || new Vector(50, 50), options.width || 160,
-      [{ name: 'Event 1', dataType: 'event' }, { name: 'Event 2', dataType: 'event' }],
-      [{ name: 'synced', dataType: 'event' }],
-      {
-        state: options.state ? { ...options.state, hold: {} } : { hold: {} },
-        style: options.style || { rowHeight: 10 },
-        terminalStyle: options.terminalStyle || {}
+  constructor() {
+    super();
+  }
+
+  protected setupIO(options: SyncEventOptions): void {
+    this.addTerminals([
+      { type: TerminalType.IN, name: "Event 1", dataType: "event" },
+      { type: TerminalType.IN, name: "Event 2", dataType: "event" },
+      { type: TerminalType.OUT, name: "synced", dataType: "event" },
+    ]);
+
+    if (exists(options.noOfEvents)) {
+      for (let i = 0; i < options.noOfEvents - 2; i++) {
+        this.addTerminal({ type: TerminalType.IN, dataType: "event", name: "Event " + (this.inputs.length + 1) });
       }
-    );
-
-    if (events) {
-      for (let i = 0; i < events - 2; i++)
-        this.addTerminal(new Terminal(this, TerminalType.IN, 'event', 'Event ' + (this.inputs.length + 1)));
     }
-    this.inputs.forEach(terminal => terminal.on('event', (inst, data) => this.process(inst, data)));
+  }
+
+  protected created(options: NodeOptions): void {
+    const { width = 160, name = "Sync Event", style = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.style = { rowHeight: 10, ...style };
 
     this.setupUI();
-
-    this.addButton.on('click', () => {
-      let newTerminal = new Terminal(this, TerminalType.IN, 'event', 'Event ' + (this.inputs.length + 1));
-      this.addTerminal(newTerminal);
-      newTerminal.on('event', (terminal, data) => this.process(terminal, data));
-    });
+    this.setupListeners();
   }
 
-  process(terminal: Terminal, data: any) {
-    this.state.hold[terminal.id] = data;
-
+  protected process() {
     let hold = [];
     for (let term of this.inputs) {
-      if (this.state.hold.hasOwnProperty(term.id)) {
-        hold.push(this.state.hold[term.id]);
-      }
-      else return;
+      if (this.hold.hasOwnProperty(term.id)) {
+        hold.push(this.hold[term.id]);
+      } else return;
     }
 
-    this.state.hold = {};
+    this.hold = {};
     this.outputs[0].emit(hold);
   }
+
   setupUI() {
-    this.addButton = this.createButton('Add', { input: true, output: true, height: 20 });
+    this.addButton = this.createUI("core/button", { text: "Add", input: true, output: true, height: 20 });
     this.ui.append(this.addButton);
   }
+  setupListeners() {
+    this.inputs.forEach((terminal) =>
+      terminal.on("event", (inst, data) => {
+        this.hold[inst.id] = data;
+        this.process();
+      })
+    );
+
+    this.addButton.on("click", () => {
+      const newTerminal = this.addTerminal({
+        type: TerminalType.IN,
+        dataType: "event",
+        name: "Event " + (this.inputs.length + 1),
+      });
+      newTerminal.on("event", (terminal, data) => {
+        this.hold[terminal.id] = data;
+        this.process();
+      });
+    });
+  }
+}
+
+export interface SyncEventOptions extends NodeOptions {
+  noOfEvents: number;
 }

@@ -1,32 +1,50 @@
-import { Flow, Vector, Terminal, TerminalType, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
+import { TerminalType, Node, NodeOptions } from "flow-connect/core";
 import { Button } from "flow-connect/ui";
 
 export class ToArray extends Node {
   addButton: Button;
 
-  constructor(flow: Flow, inputs: number, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'To Array', options.position || new Vector(50, 50), options.width || 100,
-      (inputs && inputs > 0
-        ? (new Array(inputs).fill(null).map((_, index) => ({ name: 'In ' + (index + 1), dataType: 'any' })))
-        : [{ name: 'In 1', dataType: 'any' }]
-      ),
-      [{ name: 'out', dataType: 'array' }],
-      {
-        state: options.state ? { ...options.state } : {},
-        style: options.style || { rowHeight: 10 },
-        terminalStyle: options.terminalStyle || {}
-      }
+  constructor() {
+    super();
+  }
+
+  protected setupIO(options: ToArrayOptions): void {
+    this.addTerminals(
+      options.noOfInputs && options.noOfInputs > 0
+        ? new Array(options.noOfInputs)
+            .fill(null)
+            .map((_, index) => ({ type: TerminalType.IN, name: "In " + (index + 1), dataType: "any" }))
+        : [{ type: TerminalType.IN, name: "In 1", dataType: "any" }]
     );
+    this.addTerminal({ type: TerminalType.OUT, name: "out", dataType: "array" });
+  }
+
+  protected created(options: NodeOptions): void {
+    const { width = 100, name = "To Array", style = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.style = { rowHeight: 10, ...style };
 
     this.setupUI();
+    this.setupListeners();
+  }
 
-    this.addButton.on('click', () => this.addTerminal(new Terminal(this, TerminalType.IN, 'any', 'In ' + this.inputs.length + 1)));
-    this.on('process', (_, inData) => this.setOutputs(0, [...inData]));
+  protected process(inputs: any[]): void {
+    this.setOutputs(0, [...inputs]);
   }
 
   setupUI() {
-    this.addButton = this.createButton('Add', { style: { grow: .5 } });
+    this.addButton = this.createUI("core/button", { text: "Add", style: { grow: 0.5 } });
     this.ui.append(this.addButton);
   }
+  setupListeners() {
+    this.addButton.on("click", () =>
+      this.addTerminal({ type: TerminalType.IN, dataType: "any", name: "In " + this.inputs.length + 1 })
+    );
+  }
+}
+
+export interface ToArrayOptions extends NodeOptions {
+  noOfInputs: number;
 }

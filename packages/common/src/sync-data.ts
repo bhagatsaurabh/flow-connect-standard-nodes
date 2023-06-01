@@ -1,5 +1,5 @@
-import { Flow, Vector, Terminal, TerminalType, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
+import { exists } from "flow-connect";
+import { Terminal, TerminalType, Node, NodeOptions } from "flow-connect/core";
 import { RadioGroup, Button } from "flow-connect/ui";
 
 export class SyncData extends Node {
@@ -7,59 +7,92 @@ export class SyncData extends Node {
   addButton: Button;
 
   eventIds: number[] = [];
+  hold: Record<string, any> = {};
 
-  static DefaultState = { syncType: 'partial' };
+  static DefaultState = { syncType: "partial" };
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}, inputs?: number) {
-    super(flow, options.name || 'Sync Data', options.position || new Vector(50, 50), options.width || 160,
-      [{ name: 'Data 1', dataType: 'any' }, { name: 'Data 2', dataType: 'any' }],
-      [{ name: 'synced', dataType: 'any' }],
-      {
-        state: options.state ? { ...SyncData.DefaultState, ...options.state, hold: {} } : { ...SyncData.DefaultState, hold: {} },
-        style: options.style || { rowHeight: 10 },
-        terminalStyle: options.terminalStyle || {}
-      }
-    );
+  constructor() {
+    super();
+  }
 
-    if (inputs) {
-      for (let i = 0; i < inputs - 2; i++) {
-        this.addTerminal(new Terminal(this, TerminalType.IN, 'any', 'Data ' + (this.inputs.length + 1)));
+  protected setupIO(options: SyncDataOptions): void {
+    this.addTerminals([
+      { type: TerminalType.IN, name: "Data 1", dataType: "any" },
+      { type: TerminalType.IN, name: "Data 2", dataType: "any" },
+      { type: TerminalType.OUT, name: "synced", dataType: "any" },
+    ]);
+
+    if (exists(options.noOfInputs)) {
+      for (let i = 0; i < options.noOfInputs - 2; i++) {
+        this.addTerminal({ type: TerminalType.IN, dataType: "any", name: "Data " + (this.inputs.length + 1) });
       }
     }
+  }
+
+  protected created(options: SyncDataOptions): void {
+    const { width = 160, name = "Sync Data", style = {}, state = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.style = { rowHeight: 10, ...style };
+    this.state = { ...SyncData.DefaultState, ...state };
 
     this.setupUI();
-
-    for (let terminal of this.inputs) {
-      this.eventIds.push(terminal.on('data', (inst, data) => this.process(inst, data)));
-    }
-
-    this.on('process', () => process);
+    this.setupListeners();
   }
-  setupUI() {
-    this.syncTypeInput = this.createRadioGroup(['partial', 'full'], this.state.syncType, { propName: 'syncType', height: 20 });
-    this.addButton = this.createButton('Add', { input: true, output: true, height: 20 });
-    this.ui.append([this.syncTypeInput, this.addButton]);
-    this.addButton.on('click', () => {
-      let newTerminal = new Terminal(this, TerminalType.IN, 'any', 'Data ' + (this.inputs.length + 1));
-      this.addTerminal(newTerminal);
-      this.eventIds.push(newTerminal.on('data', (inst, data) => this.process(inst, data)));
-    });
-  }
-  process(terminal: Terminal, data: any) {
-    this.state.hold[terminal.id] = data;
 
-    let hold = [];
+  protected process() {
+    const hold = [];
     for (let term of this.inputs) {
-      if (this.state.hold.hasOwnProperty(term.id)) {
-        hold.push(this.state.hold[term.id]);
-      }
-      else return;
+      if (this.hold.hasOwnProperty(term.id)) {
+        hold.push(this.hold[term.id]);
+      } else return;
     }
 
-    if (this.state.syncType === 'full') this.state.hold = {};
+    if (this.state.syncType === "full") this.state.hold = {};
     this.outputs[0].emit(hold);
+    for (let term of this.inputs) if (term.connectors.length > 0 && typeof term.getData() === "undefined") return;
 
-    for (let term of this.inputs) if (term.connectors.length > 0 && typeof term.getData() === 'undefined') return;
     this.setOutputs(0, this.getInputs());
   }
+
+  setupUI() {
+    this.syncTypeInput = this.createUI("core/radio-group", {
+      values: ["partial", "full"],
+      selected: this.state.syncType,
+      propName: "syncType",
+      height: 20,
+    });
+    this.addButton = this.createUI("core/button", { text: "Add", input: true, output: true, height: 20 });
+
+    this.ui.append([this.syncTypeInput, this.addButton]);
+  }
+  setupListeners() {
+    this.addButton.on("click", () => {
+      const newTerminal = this.addTerminal({
+        type: TerminalType.IN,
+        dataType: "any",
+        name: "Data " + (this.inputs.length + 1),
+      });
+      this.eventIds.push(
+        newTerminal.on("data", (inst, data) => {
+          this.hold[inst.id] = data;
+          this.process();
+        })
+      );
+    });
+
+    for (let terminal of this.inputs) {
+      this.eventIds.push(
+        terminal.on("data", (inst, data) => {
+          this.hold[inst.id] = data;
+          this.process();
+        })
+      );
+    }
+  }
+}
+
+export interface SyncDataOptions extends NodeOptions {
+  noOfInputs: number;
 }

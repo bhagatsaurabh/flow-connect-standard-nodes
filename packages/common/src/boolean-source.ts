@@ -1,35 +1,51 @@
-import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
-import { Toggle } from "flow-connect/ui";
+import { Node, NodeOptions, TerminalType } from "flow-connect/core";
+import { HorizontalLayout, HorizontalLayoutOptions, Label, LabelOptions, Toggle } from "flow-connect/ui";
 
 export class BooleanSource extends Node {
-  toggle: Toggle;
+  toggleInput: Toggle;
 
   static DefaultState = { value: false };
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Boolean Source', options.position || new Vector(50, 50), options.width || 130, [],
-      [{ name: 'value', dataType: 'boolean' }],
-      {
-        state: options.state ? { ...BooleanSource.DefaultState, ...options.state } : BooleanSource.DefaultState,
-        style: options.style || { rowHeight: 10 },
-        terminalStyle: options.terminalStyle || {}
-      }
-    );
-
-    this.setupUI();
-
-    this.toggle.on('change', () => this.process());
-    this.on('process', () => this.process());
+  constructor() {
+    super();
   }
 
+  protected setupIO(): void {
+    this.addTerminals([{ type: TerminalType.OUT, name: "value", dataType: "boolean" }]);
+  }
 
-  process() { this.setOutputs(0, this.state.value); }
+  protected created(options: NodeOptions): void {
+    const { width = 130, name = "Boolean Source", state = {}, style = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.state = { ...BooleanSource.DefaultState, ...state };
+    this.style = { rowHeight: 10, ...style };
+
+    this.setupUI();
+    this.setupListeners();
+  }
+
+  protected process() {
+    this.setOutputs(0, this.state.value);
+  }
+
   setupUI() {
-    this.toggle = this.createToggle({ propName: 'value', input: true, output: true, height: 10, style: { grow: .4 } });
-    this.ui.append(this.createHozLayout([
-      this.createLabel('Value'),
-      this.toggle
-    ], { style: { spacing: 20 } }));
+    this.toggleInput = this.createUI("core/toggle", {
+      propName: "value",
+      input: true,
+      output: true,
+      height: 10,
+      style: { grow: 0.4 },
+    });
+    this.ui.append(
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [this.createUI<Label, LabelOptions>("core/label", { text: "Value" }), this.toggleInput],
+        style: { spacing: 20 },
+      })
+    );
+  }
+  setupListeners() {
+    this.watch("value", () => this.process());
   }
 }

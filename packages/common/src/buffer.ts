@@ -1,43 +1,62 @@
-import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
-import { InputType, Input } from "flow-connect/ui";
+import { TerminalType, clampMin } from "flow-connect";
+import { Node, NodeOptions } from "flow-connect/core";
+import { InputType, Input, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect/ui";
 
 export class Buffer extends Node {
   sizeInput: Input;
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Buffer', options.position || new Vector(50, 50), options.width || 150,
-      [{ name: 'data', dataType: 'any' }],
-      [{ name: 'buffer', dataType: 'array' }],
-      {
-        state: options.state ? { buffer: [], size: 10, ...options.state } : { buffer: [], size: 10 },
-        style: options.style || { rowHeight: 10 },
-        terminalStyle: options.terminalStyle || {}
-      }
-    );
+  constructor() {
+    super();
+  }
+
+  protected setupIO(): void {
+    this.addTerminals([
+      { type: TerminalType.IN, name: "data", dataType: "any" },
+      { type: TerminalType.OUT, name: "buffer", dataType: "array" },
+    ]);
+  }
+
+  protected created(options: NodeOptions): void {
+    const { width = 150, name = "Buffer", style = {}, state = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.style = { rowHeight: 10, ...style };
+    this.state = { buffer: [], size: 10, ...options.state, ...state };
 
     this.setupUI();
-
-    this.sizeInput.on('change', () => this.process(this.getInputs()));
-    this.on('process', (_, inputs) => this.process(inputs));
+    this.setupListeners();
   }
 
   process(inputs: any[]) {
-    if (inputs[0] === null || typeof inputs[0] === 'undefined') return;
-    if (this.state.size <= 0) this.state.size = 1;
-    if (this.state.buffer.length === this.state.size) {
+    if (inputs[0] === null || typeof inputs[0] === "undefined") return;
+    const size = clampMin(this.state.size, 1);
+    if (this.state.buffer.length === size) {
       this.state.buffer.shift();
-    } else if (this.state.buffer.length > this.state.size) {
-      this.state.buffer.splice(0, this.state.buffer.length - this.state.size + 1);
+    } else if (this.state.buffer.length > size) {
+      this.state.buffer.splice(0, this.state.buffer.length - size + 1);
     }
     this.state.buffer.push(inputs[0]);
-    this.setOutputs('buffer', this.state.buffer);
+
+    this.setOutputs("buffer", this.state.buffer);
   }
+
   setupUI() {
-    this.sizeInput = this.createInput({ propName: 'size', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .7 } });
-    this.ui.append(this.createHozLayout([
-      this.createLabel('Size', { style: { grow: .3 } }),
-      this.sizeInput
-    ], { style: { spacing: 20 } }));
+    this.sizeInput = this.createUI("core/input", {
+      propName: "size",
+      input: true,
+      output: true,
+      height: 20,
+      style: { type: InputType.Number, grow: 0.7 },
+    });
+    this.ui.append(
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [this.createUI("core/label", { text: "Size", style: { grow: 0.3 } }), this.sizeInput],
+        style: { spacing: 20 },
+      })
+    );
+  }
+  setupListeners() {
+    this.watch("size", () => this.process(this.getInputs()));
   }
 }
