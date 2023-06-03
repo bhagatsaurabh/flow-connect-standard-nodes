@@ -1,66 +1,44 @@
-import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
+import { Node, NodeOptions, TerminalType } from "flow-connect/core";
+import { HorizontalLayout, HorizontalLayoutOptions, Label, LabelOptions, InputType } from "flow-connect/ui";
 import { normalize } from "flow-connect/utils";
-import { InputType } from "flow-connect/ui";
 
 export class Normalize extends Node {
   min = Number.MAX_SAFE_INTEGER;
   max = Number.MIN_SAFE_INTEGER;
+  normalizationType: "number" | "array";
 
-  static DefaultState = { min: 0, max: 100, relative: false };
+  static DefaultState = { min: 0, max: 100, relative: false, constant: false, normalizationType: "array" };
 
-  constructor(flow: Flow, public type: 'number' | 'array', options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Normalize', options.position || new Vector(50, 50), options.width || 150,
-      [{ name: 'data', dataType: type }],
-      [{ name: 'normalized', dataType: type }],
-      {
-        state: options.state ? { ...Normalize.DefaultState, ...options.state } : Normalize.DefaultState,
-        style: options.style || { rowHeight: 10 },
-        terminalStyle: options.terminalStyle || {}
-      }
-    );
-
-    if (type === 'array') {
-      let relativeToggle = this.createToggle({ propName: 'relative', height: 10, style: { grow: .5 } });
-      this.ui.append(this.createHozLayout([
-        this.createLabel('Relative ?'),
-        relativeToggle
-      ], { style: { spacing: 20 } }));
-      relativeToggle.on('change', () => this.process());
-    }
-    if (type === 'number' || !this.state.relative) {
-      let minInput = this.createInput({ propName: 'min', height: 20, style: { type: InputType.Number, grow: .3 } });
-      let maxInput = this.createInput({ propName: 'max', height: 20, style: { type: InputType.Number, grow: .3 } });
-      this.ui.append(this.createHozLayout([
-        this.createLabel('Min', { style: { grow: .2 } }),
-        minInput,
-        this.createLabel('Max', { style: { grow: .2 } }),
-        maxInput
-      ], { style: { spacing: 5 } }));
-
-      minInput.on('change', () => this.process());
-      maxInput.on('change', () => this.process());
-    }
-    if (this.state.constant) {
-      let constantInput = this.createInput({ propName: 'constant', height: 20, style: { type: InputType.Number, grow: .5 } });
-      this.ui.append(this.createHozLayout([
-        this.createLabel('Constant'),
-        constantInput
-      ], { style: { spacing: 20 } }));
-
-      constantInput.on('change', () => this.process());
-    }
-
-    this.on('process', () => this.process())
+  constructor() {
+    super();
   }
 
+  protected setupIO(options: NormalizeOptions): void {
+    this.addTerminals([
+      { type: TerminalType.IN, name: "data", dataType: options.normalizationType || "array" },
+      { type: TerminalType.OUT, name: "normalized", dataType: options.normalizationType || "array" },
+    ]);
+  }
 
-  process() {
+  protected created(options: NormalizeOptions): void {
+    const { width = 150, name = "Normalize", style = {}, state = {}, normalizationType = "array" } = options;
+
+    this.normalizationType = normalizationType;
+    this.width = width;
+    this.name = name;
+    this.style = { rowHeight: 10, ...style };
+    this.state = { ...Normalize.DefaultState, ...state };
+
+    this.setupUI();
+    this.setupListeners();
+  }
+
+  protected process() {
     let data = this.getInput(0);
     if (!data) return;
 
     let normalized;
-    if (this.type === 'number') {
+    if (this.normalizationType === "number") {
       normalized = Number(normalize(data, this.state.min, this.state.max).toFixed(2));
     } else {
       if (this.state.relative) {
@@ -73,6 +51,67 @@ export class Normalize extends Node {
         normalized = data.map((item: number) => Number(normalize(item, this.state.min, this.state.max).toFixed(2)));
       }
     }
-    this.setOutputs('normalized', normalized);
+
+    this.setOutputs("normalized", normalized);
   }
+
+  setupUI() {
+    if (this.normalizationType === "array") {
+      const relativeToggle = this.createUI("core/toggle", { propName: "relative", height: 10, style: { grow: 0.5 } });
+      this.ui.append(
+        this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+          childs: [this.createUI<Label, LabelOptions>("core/label", { text: "Relative ?" }), relativeToggle],
+          style: { spacing: 20 },
+        })
+      );
+    }
+
+    if (this.normalizationType === "number" || !this.state.relative) {
+      let minInput = this.createUI("core/input", {
+        propName: "min",
+        height: 20,
+        style: { type: InputType.Number, grow: 0.3 },
+      });
+      let maxInput = this.createUI("core/input", {
+        propName: "max",
+        height: 20,
+        style: { type: InputType.Number, grow: 0.3 },
+      });
+      this.ui.append(
+        this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+          childs: [
+            this.createUI("core/label", { text: "Min", style: { grow: 0.2 } }),
+            minInput,
+            this.createUI("core/label", { text: "Max", style: { grow: 0.2 } }),
+            maxInput,
+          ],
+          style: { spacing: 5 },
+        })
+      );
+    }
+
+    if (this.state.constant) {
+      let constantInput = this.createUI("core/input", {
+        propName: "constant",
+        height: 20,
+        style: { type: InputType.Number, grow: 0.5 },
+      });
+      this.ui.append(
+        this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+          childs: [this.createUI<Label, LabelOptions>("core/label", { text: "Constant" }), constantInput],
+          style: { spacing: 20 },
+        })
+      );
+    }
+  }
+  setupListeners() {
+    this.watch("relative", () => this.process());
+    this.watch("min", () => this.process());
+    this.watch("max", () => this.process());
+    this.watch("constant", () => this.process());
+  }
+}
+
+export interface NormalizeOptions extends NodeOptions {
+  normalizationType: "number" | "array";
 }
