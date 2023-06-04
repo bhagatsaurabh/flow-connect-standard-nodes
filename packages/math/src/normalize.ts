@@ -1,4 +1,5 @@
-import { Node, NodeOptions, TerminalType } from "flow-connect/core";
+import { DataPersistenceProvider } from "flow-connect";
+import { Node, NodeOptions, SerializedNode, TerminalType } from "flow-connect/core";
 import { HorizontalLayout, HorizontalLayoutOptions, Label, LabelOptions, InputType } from "flow-connect/ui";
 import { normalize } from "flow-connect/utils";
 
@@ -110,8 +111,20 @@ export class Normalize extends Node {
     this.watch("max", () => this.process());
     this.watch("constant", () => this.process());
   }
+
+  async serialize(persist?: DataPersistenceProvider): Promise<SerializedNormalizeNode> {
+    const serializedNode = (await super.serialize(persist)) as SerializedNormalizeNode;
+
+    serializedNode.normalizationType = this.normalizationType;
+
+    return serializedNode;
+  }
 }
 
 export interface NormalizeOptions extends NodeOptions {
+  normalizationType: "number" | "array";
+}
+
+export interface SerializedNormalizeNode extends SerializedNode {
   normalizationType: "number" | "array";
 }

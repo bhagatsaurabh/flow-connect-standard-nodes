@@ -4,6 +4,7 @@ import { InputType, Input, HorizontalLayout, HorizontalLayoutOptions } from "flo
 
 export class Buffer extends Node {
   sizeInput: Input;
+  buffer: any[] = [];
 
   constructor() {
     super();
@@ -22,7 +23,7 @@ export class Buffer extends Node {
     this.width = width;
     this.name = name;
     this.style = { rowHeight: 10, ...style };
-    this.state = { buffer: [], size: 10, ...options.state, ...state };
+    this.state = { size: 10, ...options.state, ...state };
 
     this.setupUI();
     this.setupListeners();
@@ -31,14 +32,14 @@ export class Buffer extends Node {
   process(inputs: any[]) {
     if (inputs[0] === null || typeof inputs[0] === "undefined") return;
     const size = clampMin(this.state.size, 1);
-    if (this.state.buffer.length === size) {
-      this.state.buffer.shift();
-    } else if (this.state.buffer.length > size) {
-      this.state.buffer.splice(0, this.state.buffer.length - size + 1);
+    if (this.buffer.length === size) {
+      this.buffer.shift();
+    } else if (this.buffer.length > size) {
+      this.buffer.splice(0, this.buffer.length - size + 1);
     }
-    this.state.buffer.push(inputs[0]);
+    this.buffer.push(inputs[0]);
 
-    this.setOutputs("buffer", this.state.buffer);
+    this.setOutputs("buffer", this.buffer);
   }
 
   setupUI() {

@@ -38,8 +38,8 @@ export class Timer extends Node {
     );
   }
   setupListeners() {
-    this.flow.flowConnect.on("tickreset", () => (this.lastTrigger = Number.MIN_VALUE));
-    this.flow.flowConnect.on("tick", () => {
+    this.flow.on("tickreset", () => (this.lastTrigger = Number.MIN_VALUE));
+    this.flow.on("tick", () => {
       let current = this.flow.flowConnect.time;
       if (current - this.lastTrigger >= this.state.delay) {
         this.outputs[0].emit(this.state.emitValue);

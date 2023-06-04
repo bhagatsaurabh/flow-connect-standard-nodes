@@ -10,7 +10,9 @@ interface BufferedEvent {
 }
 
 export class Delay extends Node {
-  static DefaultState: any = { delay: 0, eventQueue: new List<BufferedEvent>((a, b) => a.timeoutId - b.timeoutId) };
+  eventQueue = new List<BufferedEvent>((a, b) => a.timeoutId - b.timeoutId);
+
+  static DefaultState: any = { delay: 0 };
 
   constructor() {
     super();
@@ -38,8 +40,8 @@ export class Delay extends Node {
   protected process(): void {}
 
   triggerEvent(eventNode: ListNode<BufferedEvent>) {
-    if (eventNode === this.state.eventQueue.head) {
-      let bufferedEvent = this.state.eventQueue.removeFirst();
+    if (eventNode === this.eventQueue.head) {
+      let bufferedEvent = this.eventQueue.removeFirst();
       this.outputs[0].emit(bufferedEvent.data);
     }
   }
@@ -61,12 +63,12 @@ export class Delay extends Node {
     );
   }
   setupListeners() {
-    this.state.eventQueue.on("removefirst", () => {
+    this.eventQueue.on("removefirst", () => {
       while (
-        this.state.eventQueue.head &&
-        performance.now() - this.state.eventQueue.head.data.start >= this.state.delay
+        this.eventQueue.head &&
+        performance.now() - this.eventQueue.head.data.start >= this.state.delay
       ) {
-        let bufferedEvent = this.state.eventQueue.removeFirst(false);
+        let bufferedEvent = this.eventQueue.removeFirst(false);
         this.outputs[0].emit(bufferedEvent.data);
       }
     });
@@ -77,17 +79,17 @@ export class Delay extends Node {
         timeoutId: window.setTimeout(() => this.triggerEvent(eventNode), this.state.delay),
         start: performance.now(),
       };
-      this.state.eventQueue.append(eventNode);
+      this.eventQueue.append(eventNode);
     });
 
     this.flow.on("start", () => {
-      this.state.eventQueue.forEach((eventNode: ListNode<BufferedEvent>) => {
+      this.eventQueue.forEach((eventNode: ListNode<BufferedEvent>) => {
         eventNode.data.start = performance.now() + eventNode.data.remaining - this.state.delay;
         eventNode.data.timeoutId = window.setTimeout(() => this.triggerEvent(eventNode), eventNode.data.remaining);
       });
     });
     this.flow.on("stop", () => {
-      this.state.eventQueue.forEach((eventNode: ListNode<BufferedEvent>) => {
+      this.eventQueue.forEach((eventNode: ListNode<BufferedEvent>) => {
         clearTimeout(eventNode.data.timeoutId);
         eventNode.data.remaining = performance.now() - eventNode.data.start;
       });

@@ -1,4 +1,5 @@
-import { Vector, Node, NodeOptions, TerminalType, SerializedVector } from "flow-connect/core";
+import { DataPersistenceProvider } from "flow-connect";
+import { Vector, Node, NodeOptions, TerminalType, SerializedVector, SerializedNode } from "flow-connect/core";
 import {
   Display,
   DisplayOptions,
@@ -10,10 +11,11 @@ import {
 } from "flow-connect/ui";
 
 export class FunctionPlotter extends Node {
+  displayHeight: number;
   display: Display;
   polarToggle: Toggle;
   plotStyle: PlotStyle = new Object();
-  points: SerializedVector[];
+  points: SerializedVector[] = [];
 
   static DefaultState: any = {
     polar: false,
@@ -29,14 +31,15 @@ export class FunctionPlotter extends Node {
   }
 
   protected created(options: FunctionPlotterOptions): void {
-    const { width = 300, name = "Parametric Plotter", style = {}, state = {} } = options;
+    const { width = 300, name = "Parametric Plotter", style = {}, state = {}, displayHeight = 200 } = options;
 
+    this.displayHeight = displayHeight;
     this.width = width;
     this.name = name;
     this.style = { rowHeight: 10, ...style };
     this.state = { ...FunctionPlotter.DefaultState, ...state };
 
-    this.setupUI(options.height);
+    this.setupUI();
     this.setupListeners();
   }
 
@@ -65,9 +68,10 @@ export class FunctionPlotter extends Node {
     );
   }
 
-  setupUI(height: number) {
+  setupUI() {
     this.display = this.createUI<Display, DisplayOptions>("core/display", {
-      height,
+      clear: true,
+      height: this.displayHeight,
       customRenderers: [
         { auto: true, renderer: (context, width, height) => this.gridRenderer(context, width, height) },
         { auto: false },
@@ -163,7 +167,7 @@ export class FunctionPlotter extends Node {
         this.display.displayConfigs[1].canvas.height
       );
     });
-    this.flow.flowConnect.on("scale", () =>
+    this.flow.on("scale", () =>
       this.functionRenderer(
         this.display.displayConfigs[1].context,
         this.display.displayConfigs[1].canvas.width,
@@ -322,6 +326,14 @@ export class FunctionPlotter extends Node {
     }
     context.stroke();
   }
+
+  async serialize(persist?: DataPersistenceProvider): Promise<SerializedFunctionPlotterNode> {
+    const serializedNode = (await super.serialize(persist)) as SerializedFunctionPlotterNode;
+
+    serializedNode.displayHeight = this.displayHeight;
+
+    return serializedNode;
+  }
 }
 
 export interface PlotStyle {
@@ -332,5 +344,9 @@ export interface PlotStyle {
 
 export interface FunctionPlotterOptions extends NodeOptions {
   plotStyle: PlotStyle;
-  height: number;
+  displayHeight: number;
+}
+
+export interface SerializedFunctionPlotterNode extends SerializedNode {
+  displayHeight: number;
 }

@@ -1,4 +1,5 @@
-import { TerminalType, Node, NodeOptions } from "flow-connect/core";
+import { DataPersistenceProvider } from "flow-connect";
+import { TerminalType, Node, NodeOptions, SerializedNode } from "flow-connect/core";
 import { Button } from "flow-connect/ui";
 
 export class ToArray extends Node {
@@ -43,8 +44,20 @@ export class ToArray extends Node {
       this.addTerminal({ type: TerminalType.IN, dataType: "any", name: "In " + this.inputs.length + 1 })
     );
   }
+
+  async serialize(persist?: DataPersistenceProvider): Promise<SerializedToArrayNode> {
+    const serializedNode = (await super.serialize(persist)) as SerializedToArrayNode;
+
+    serializedNode.noOfInputs = this.inputs.length;
+
+    return serializedNode;
+  }
 }
 
 export interface ToArrayOptions extends NodeOptions {
+  noOfInputs: number;
+}
+
+export interface SerializedToArrayNode extends SerializedNode {
   noOfInputs: number;
 }

@@ -20,7 +20,7 @@ export class Dial extends Node {
   protected setupIO(): void {}
 
   protected created(options: DialNodeOptions): void {
-    const { width = 90, name = "Dial", style = {}, state = {}, dialStyle } = options;
+    const { width = 90, name = "Dial", style = {}, state = {}, dialStyle = {}, height = 90 } = options;
 
     this.width = width;
     this.name = name;
@@ -35,15 +35,15 @@ export class Dial extends Node {
       shadowColor: "transparent",
     });
 
-    this.setupUI(dialStyle);
+    this.setupUI(dialStyle, height);
     this.setupListeners();
   }
 
   protected process(): void {}
 
-  setupUI(dialStyle: DialStyle) {
+  setupUI(dialStyle: DialStyle, height: number) {
     let dial = this.createUI<DialUI, DialOptions>("core/dial", {
-      height: this.height,
+      height,
       min: this.state.min,
       max: this.state.max,
       value: this.state.value,
@@ -92,5 +92,6 @@ export class Dial extends Node {
 }
 
 export interface DialNodeOptions extends NodeOptions {
+  height: number;
   dialStyle?: DialStyle;
 }

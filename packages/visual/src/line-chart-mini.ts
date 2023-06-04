@@ -1,4 +1,5 @@
-import { Color, Node, NodeOptions, TerminalType } from "flow-connect/core";
+import { DataPersistenceProvider } from "flow-connect";
+import { Color, Node, NodeOptions, SerializedNode, TerminalType } from "flow-connect/core";
 import {
   InputType,
   DisplayStyle,
@@ -11,6 +12,7 @@ import {
 } from "flow-connect/ui";
 
 export class LineChartMini extends Node {
+  displayHeight: number;
   static DefaultState = { size: 10, colors: [""] };
 
   constructor() {
@@ -22,24 +24,34 @@ export class LineChartMini extends Node {
   }
 
   protected created(options: LineChartMiniOptions): void {
-    const { width = 150, name = "Line Chart Mini", style = {}, state = {}, height, displayStyle } = options;
+    const {
+      width = 150,
+      name = "Line Chart Mini",
+      style = {},
+      state = {},
+      displayHeight = 100,
+      displayStyle = {},
+    } = options;
 
+    this.displayHeight = displayHeight;
     this.width = width;
     this.name = name;
     this.style = { rowHeight: 10, ...style };
     this.state = { ...LineChartMini.DefaultState, ...state };
 
-    this.setupUI(height, displayStyle);
+    this.setupUI(displayStyle);
   }
 
   protected process(): void {}
 
-  setupUI(height: number, displayStyle: DisplayStyle) {
+  setupUI(displayStyle: DisplayStyle) {
     let display = this.createUI<Display, DisplayOptions>("core/display", {
-      height,
+      clear: true,
+      height: this.displayHeight,
       customRenderers: [
         {
           auto: true,
+          clear: true,
           renderer: (ctx, wdth, hght) => this.customRenderer(ctx, wdth, hght),
         },
       ],
@@ -76,10 +88,21 @@ export class LineChartMini extends Node {
     });
     return true;
   }
+
+  async serialize(persist?: DataPersistenceProvider): Promise<SerializedLineChartMiniNode> {
+    const serializedNode = (await super.serialize(persist)) as SerializedLineChartMiniNode;
+
+    serializedNode.displayHeight = this.displayHeight;
+
+    return serializedNode;
+  }
 }
 
 export interface LineChartMiniOptions extends NodeOptions {
-  height: number;
-  colors: string[];
+  displayHeight: number;
   displayStyle: DisplayStyle;
+}
+
+export interface SerializedLineChartMiniNode extends SerializedNode {
+  displayHeight: number;
 }
