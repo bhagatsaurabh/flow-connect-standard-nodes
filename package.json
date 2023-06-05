@@ -26,6 +26,6 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "flow-connect": "file:flow-connect-1.1.0-alpha.1.1.tgz"
+    "flow-connect": "^2.0.0"
   }
 }
