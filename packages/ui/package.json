@@ -1,6 +1,6 @@
 {
   "name": "@flow-connect/ui",
-  "version": "1.0.5",
+  "version": "2.0.0",
   "description": "Standard UI nodes collection for FlowConnect",
   "publishConfig": {
     "access": "public"
@@ -60,6 +60,6 @@
   },
   "browser": "./dist/ui.js",
   "peerDependencies": {
-    "flow-connect": "^1.0.13"
+    "flow-connect": "^2.0.0"
   }
 }

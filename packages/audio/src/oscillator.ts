@@ -1,7 +1,14 @@
-import { Flow, Vector, Node } from 'flow-connect/core'
-import { NodeCreatorOptions } from "flow-connect/common";
+import { Flow, Node, NodeOptions, TerminalType, NodeStyle } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
-import { InputType, Input, RadioGroup, Slider, HorizontalLayout } from "flow-connect/ui";
+import {
+  InputType,
+  Input,
+  RadioGroup,
+  Slider,
+  HorizontalLayout,
+  HorizontalLayoutOptions,
+  RadioGroupOptions,
+} from "flow-connect/ui";
 
 export class Oscillator extends Node {
   freqSlider: Slider;
@@ -17,54 +24,46 @@ export class Oscillator extends Node {
   detuneProxy: AudioWorkletNode;
   outGain: GainNode;
 
-  types = ['sine', 'square', 'sawtooth', 'triangle'];
+  types = ["sine", "square", "sawtooth", "triangle"];
 
-  static DefaultState = { frequency: 440, detune: 0, type: 'sine' };
+  get audioCtx(): AudioContext {
+    return this.flow.flowConnect.audioContext;
+  }
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(
-      flow, options.name || 'Oscillator',
-      options.position || new Vector(50, 50),
-      options.width || 250, [],
-      [{ name: 'out', dataType: 'audio' }],
-      {
-        style: options.style || { rowHeight: 10, spacing: 10 },
-        terminalStyle: options.terminalStyle || {},
-        state: options.state ? { ...Oscillator.DefaultState, ...options.state } : Oscillator.DefaultState
-      }
-    )
+  private static DefaultState = { frequency: 440, detune: 0, type: "sine" };
 
-    this.freqProxy = new AudioWorkletNode(flow.flowConnect.audioContext, 'proxy');
-    this.detuneProxy = new AudioWorkletNode(flow.flowConnect.audioContext, 'proxy');
-    this.outGain = flow.flowConnect.audioContext.createGain();
+  constructor() {
+    super();
+  }
+
+  protected setupIO(_options: OscillatorOptions): void {
+    this.addTerminals([{ type: TerminalType.OUT, name: "out", dataType: "audio" }]);
+  }
+
+  protected created(options: OscillatorOptions): void {
+    const { width = 250, name = "Oscillator", state = {}, style = {} } = options;
+
+    this.name = name;
+    this.width = width;
+    this.state = { ...Oscillator.DefaultState, ...state };
+    this.style = { ...DefaultOscillatorStyle(), ...style };
+
+    this.freqProxy = new AudioWorkletNode(this.audioCtx, "proxy");
+    this.detuneProxy = new AudioWorkletNode(this.audioCtx, "proxy");
+    this.outGain = this.audioCtx.createGain();
 
     this.setupUI();
 
     this.inputsUI[0].ref = this.freqProxy;
     this.inputsUI[1].ref = this.detuneProxy;
-    this.inputsUI[0].dataType = 'audioparam';
-    this.inputsUI[1].dataType = 'audioparam';
+    this.inputsUI[0].dataType = "audioparam";
+    this.inputsUI[1].dataType = "audioparam";
     this.outputs[0].ref = this.outGain;
 
-    this.inputsUI[0].on('data', (_inst, data) => typeof data === 'number' && (this.state.frequency = data));
-    this.inputsUI[1].on('data', (_inst, data) => typeof data === 'number' && (this.state.detune = data));
-
-    this.watch('frequency', (_oldVal, newVal) => {
-      if (newVal < 0 || newVal > 20000) newVal = clamp(newVal, 0, 20000);
-      if (!this.freqHozLayout.disabled) this.oscillator && (this.oscillator.frequency.value = newVal);
-    });
-    this.watch('detune', (_oldVal, newVal) => {
-      if (!this.detuneHozLayout.disabled) this.oscillator && (this.oscillator.detune.value = newVal);
-    });
-    this.watch('type', (_oldVal, newVal) => {
-      if (this.types.includes(newVal)) this.oscillator && (this.oscillator.type = newVal);
-    });
-
-    this.flow.flowConnect.on('start', () => this.startOscillator());
-    this.flow.flowConnect.on('stop', () => this.stopOscillator());
-
-    this.handleAudioConnections();
+    this.setupListeners();
   }
+
+  protected process(_inputs: any[]): void {}
 
   startOscillator() {
     this.stopOscillator();
@@ -94,46 +93,104 @@ export class Oscillator extends Node {
     }
   }
   setupUI() {
-    this.freqSlider = this.createSlider(0, 20000, { height: 10, propName: 'frequency', style: { grow: .5 } });
-    this.freqInput = this.createInput({ propName: 'frequency', height: 20, style: { type: InputType.Number, grow: .3, precision: 0 } });
-    this.freqHozLayout = this.createHozLayout([
-      this.createLabel('Freq.', { style: { grow: .2 } }), this.freqSlider, this.freqInput
-    ], { input: true, style: { spacing: 5 } });
-    this.detuneSlider = this.createSlider(-2400, 2400, { height: 10, propName: 'detune', style: { grow: .5 } });
-    this.detuneInput = this.createInput({ propName: 'detune', height: 20, style: { type: InputType.Number, grow: .3, precision: 0 } });
-    this.detuneHozLayout = this.createHozLayout([
-      this.createLabel('Detune', { style: { grow: .2 } }), this.detuneSlider, this.detuneInput
-    ], { input: true, style: { spacing: 5 } });
-    this.typeGroup = this.createRadioGroup(this.types, this.state.type, { propName: 'type', height: 20 });
+    this.freqSlider = this.createUI("core/slider", {
+      min: 0,
+      max: 20000,
+      height: 10,
+      propName: "frequency",
+      style: { grow: 0.5 },
+      input: true,
+    });
+    this.freqInput = this.createUI("core/input", {
+      propName: "frequency",
+      height: 20,
+      style: { type: InputType.Number, grow: 0.3, precision: 0 },
+    });
+    this.freqHozLayout = this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+      childs: [this.createUI("core/label", { text: "Freq.", style: { grow: 0.2 } }), this.freqSlider, this.freqInput],
+      style: { spacing: 5 },
+    });
+    this.detuneSlider = this.createUI("core/slider", {
+      min: -2400,
+      max: 2400,
+      height: 10,
+      input: true,
+      propName: "detune",
+      style: { grow: 0.5 },
+    });
+    this.detuneInput = this.createUI("core/input", {
+      propName: "detune",
+      height: 20,
+      style: { type: InputType.Number, grow: 0.3, precision: 0 },
+    });
+    this.detuneHozLayout = this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+      childs: [
+        this.createUI("core/label", { text: "Detune", style: { grow: 0.2 } }),
+        this.detuneSlider,
+        this.detuneInput,
+      ],
+      style: { spacing: 5 },
+    });
+    this.typeGroup = this.createUI<RadioGroup, RadioGroupOptions>("core/radio-group", {
+      values: this.types,
+      selected: this.state.type,
+      propName: "type",
+      height: 20,
+    });
 
     this.ui.append([this.freqHozLayout, this.detuneHozLayout, this.typeGroup]);
   }
-  handleAudioConnections() {
-    this.inputsUI[0].on('connect', () => {
+  setupListeners() {
+    this.inputsUI[0].on("data", (_inst, data) => typeof data === "number" && (this.state.frequency = data));
+    this.inputsUI[1].on("data", (_inst, data) => typeof data === "number" && (this.state.detune = data));
+
+    this.watch("frequency", (_oldVal, newVal) => {
+      if (!this.freqHozLayout.disabled) this.oscillator && (this.oscillator.frequency.value = clamp(newVal, 0, 20000));
+    });
+    this.watch("detune", (_oldVal, newVal) => {
+      if (!this.detuneHozLayout.disabled) this.oscillator && (this.oscillator.detune.value = newVal);
+    });
+    this.watch("type", (_oldVal, newVal) => {
+      if (this.types.includes(newVal)) this.oscillator && (this.oscillator.type = newVal);
+    });
+
+    this.flow.on("start", () => this.startOscillator());
+    this.flow.on("stop", () => this.stopOscillator());
+
+    this.inputsUI[0].on("connect", () => {
       if (this.oscillator) {
         this.freqProxy.connect(this.oscillator.frequency);
         this.oscillator.frequency.value = 0;
       }
     });
-    this.inputsUI[0].on('disconnect', () => {
+    this.inputsUI[0].on("disconnect", () => {
       if (this.oscillator) {
         this.freqProxy.disconnect();
         this.oscillator.frequency.value = this.state.frequency;
       }
     });
-    this.inputsUI[1].on('connect', () => {
+    this.inputsUI[1].on("connect", () => {
       if (this.oscillator) {
         this.detuneProxy.connect(this.oscillator.detune);
         this.oscillator.detune.value = 0;
       }
     });
-    this.inputsUI[1].on('disconnect', () => {
+    this.inputsUI[1].on("disconnect", () => {
       if (this.oscillator) {
         this.detuneProxy.disconnect();
         this.oscillator.detune.value = this.state.detune;
       }
     });
-    this.outputs[0].on('connect', (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
-    this.outputs[0].on('disconnect', (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
+    this.outputs[0].on("connect", (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
+    this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }
 }
+
+export interface OscillatorOptions extends NodeOptions {}
+
+export interface OscillatorStyle extends NodeStyle {}
+
+const DefaultOscillatorStyle = (): OscillatorStyle => ({
+  rowHeight: 10,
+  spacing: 10,
+});
