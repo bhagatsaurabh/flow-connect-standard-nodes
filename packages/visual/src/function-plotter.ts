@@ -31,8 +31,16 @@ export class FunctionPlotter extends Node {
   }
 
   protected created(options: FunctionPlotterOptions): void {
-    const { width = 300, name = "Parametric Plotter", style = {}, state = {}, displayHeight = 200 } = options;
+    const {
+      width = 300,
+      name = "Parametric Plotter",
+      style = {},
+      state = {},
+      displayHeight = 200,
+      plotStyle,
+    } = options;
 
+    this.plotStyle = plotStyle;
     this.displayHeight = displayHeight;
     this.width = width;
     this.name = name;

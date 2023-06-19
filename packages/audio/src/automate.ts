@@ -1,4 +1,4 @@
-import { Node, NodeOptions, NodeStyle, TerminalType, Vector } from "flow-connect/core";
+import { FlowState, Node, NodeOptions, NodeStyle, TerminalType, Vector } from "flow-connect/core";
 import { denormalize } from "flow-connect/utils";
 import {
   InputType,
@@ -186,6 +186,7 @@ export class Automate extends Node {
   }
 
   startAutomation() {
+    if (this.flow.state === FlowState.Stopped) return;
     // Stop any previously scheduled automations
     this.stopAutomation();
 
@@ -211,6 +212,8 @@ export class Automate extends Node {
     }
   }
   stopAutomation() {
+    if (this.flow.state === FlowState.Stopped) return;
+
     this.proxyParam.cancelScheduledValues(this.flow.flowConnect.audioContext.currentTime);
     clearInterval(this.timerId);
   }
