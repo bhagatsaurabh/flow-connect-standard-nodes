@@ -1,6 +1,6 @@
 {
   "name": "@flow-connect/math",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Standard Math nodes collection for FlowConnect",
   "publishConfig": {
     "access": "public"
