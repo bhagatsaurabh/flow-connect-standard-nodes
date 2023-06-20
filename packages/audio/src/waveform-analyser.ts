@@ -1,5 +1,5 @@
 import { Align, DisplayOptions, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect";
-import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
 import { Display, Label, Slider } from "flow-connect/ui";
 
@@ -108,7 +108,7 @@ export class WaveformAnalyser extends Node {
     offset = orgHeight - height - 1;
     barWidth = width / frequencyBinCount;
 
-    context.strokeStyle = "#000";
+    context.strokeStyle = (this.style as WaveformAnalyserStyle).waveColor ?? "#000";
     context.beginPath();
     context.moveTo(0, offset);
     for (; i < frequencyBinCount; i++) {
@@ -137,9 +137,12 @@ export class WaveformAnalyser extends Node {
 
 export interface WaveformAnalyserOptions extends NodeOptions {}
 
-export interface WaveformAnalyserStyle extends NodeStyle {}
+export interface WaveformAnalyserStyle extends NodeStyle {
+  waveColor?: string;
+}
 
 const DefaultWaveformAnalyserStyle = (): WaveformAnalyserStyle => ({
   rowHeight: 10,
   spacing: 10,
+  waveColor: "#000",
 });

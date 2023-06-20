@@ -1,6 +1,6 @@
 {
   "name": "@flow-connect/common",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Standard Common nodes collection for FlowConnect",
   "publishConfig": {
     "access": "public"
@@ -60,6 +60,6 @@
   },
   "browser": "./dist/common.js",
   "peerDependencies": {
-    "flow-connect": "^2.0.4"
+    "flow-connect": "^2.0.5"
   }
 }
