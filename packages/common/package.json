@@ -60,6 +60,6 @@
   },
   "browser": "./dist/common.js",
   "peerDependencies": {
-    "flow-connect": "^2.0.4"
+    "flow-connect": "^2.0.5"
   }
 }
