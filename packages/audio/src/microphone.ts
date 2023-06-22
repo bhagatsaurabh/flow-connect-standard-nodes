@@ -1,4 +1,4 @@
-import { Flow, FlowState, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { FlowState, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { Log } from "flow-connect/utils";
 
 export class Microphone extends Node {
@@ -63,7 +63,7 @@ export class Microphone extends Node {
         this.microphone.connect(this.outGain);
       }
     });
-    this.flow.on("stop", () => this.microphone && this.microphone.disconnect());
+    this.flow.on("stop", () => this.microphone?.disconnect());
 
     this.outputs[0].on("connect", (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
     this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));

@@ -1,3 +1,4 @@
+import { exists } from "flow-connect";
 import { Node, TerminalType, NodeOptions, NodeStyle } from "flow-connect/core";
 
 export class ChannelSplitter extends Node {
@@ -29,8 +30,20 @@ export class ChannelSplitter extends Node {
     this.style = { ...DefaultChannelSplitterStyle(), ...style };
 
     this.inputs[0].ref = this.audioCtx.createGain();
-    this.outputs[0].ref = this.audioCtx.createGain();
-    this.outputs[0].ref.channelCountMode = "explicit";
+    if (options.outputs?.length) {
+      this.oldNoOfChannels = options.outputs.length;
+      let splitter = this.audioCtx.createChannelSplitter(this.oldNoOfChannels);
+      this.inputs[0].ref.connect(splitter);
+      this.outputs.forEach((term, idx) => {
+        term.ref = this.audioCtx.createGain();
+        term.ref.channelCountMode = "explicit";
+        splitter.connect(term.ref, idx);
+      });
+      this.splitter = splitter;
+    } else {
+      this.outputs[0].ref = this.audioCtx.createGain();
+      this.outputs[0].ref.channelCountMode = "explicit";
+    }
 
     this.setupListeners();
   }
@@ -40,8 +53,10 @@ export class ChannelSplitter extends Node {
   setupListeners() {
     this.on("channel-count-change", (newNoOfChannels) => this.checkChannels(newNoOfChannels));
 
-    this.outputs[0].on("connect", (_inst, cntr) => this.outputs[0].ref.connect(cntr.end.ref));
-    this.outputs[0].on("disconnect", (_inst, _cntr, _start, end) => this.outputs[0].ref.disconnect(end.ref));
+    this.outputs.forEach((term) => {
+      term.on("connect", (_inst, cntr) => term.ref.connect(cntr.end.ref));
+      term.on("disconnect", (_inst, _cntr, _start, end) => term.ref.disconnect(end.ref));
+    });
   }
   checkChannels(newNoOfChannels: number) {
     if (this.oldNoOfChannels === newNoOfChannels) return;
@@ -49,7 +64,7 @@ export class ChannelSplitter extends Node {
     this.splitter && this.splitter.disconnect();
     this.inputs[0].ref.disconnect();
 
-    let splitter = this.flow.flowConnect.audioContext.createChannelSplitter(newNoOfChannels);
+    let splitter = this.audioCtx.createChannelSplitter(newNoOfChannels);
     this.inputs[0].ref.connect(splitter);
 
     let terminalsToRemove = [];
@@ -59,9 +74,8 @@ export class ChannelSplitter extends Node {
           splitter.connect(this.outputs[i].ref, i);
         } else {
           const newTerminal = this.addTerminal({ type: TerminalType.OUT, name: `Channel ${i + 1}`, dataType: "audio" });
-          newTerminal.ref = this.flow.flowConnect.audioContext.createGain();
+          newTerminal.ref = this.audioCtx.createGain();
           newTerminal.ref.channelCountMode = "explicit";
-          this.addTerminal(newTerminal);
           this.outputs[i].on("connect", (_inst, cntr) => this.outputs[i].ref.connect(cntr.end.ref));
           this.outputs[i].on("disconnect", (_inst, _cntr, _start, end) => this.outputs[i].ref.disconnect(end.ref));
           splitter.connect(this.outputs[i].ref, i);

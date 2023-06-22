@@ -29,13 +29,20 @@ export class ChannelMerger extends Node {
     this.state = state;
     this.style = { ...DefaultChannelMergerStyle(), ...style };
 
-    this.inputs[0].ref = this.audioCtx.createGain();
-    this.inputs[1].ref = this.audioCtx.createGain();
     this.outputs[0].ref = this.audioCtx.createGain();
-    this.merger = this.audioCtx.createChannelMerger(2);
-
-    this.inputs[0].ref.connect(this.merger, 0, 0);
-    this.inputs[1].ref.connect(this.merger, 0, 1);
+    if (options.inputs?.length) {
+      this.merger = this.audioCtx.createChannelMerger(options.inputs.length);
+      this.inputs.forEach((term, idx) => {
+        term.ref = this.audioCtx.createGain();
+        term.ref.connect(this.merger, 0, idx);
+      });
+    } else {
+      this.merger = this.audioCtx.createChannelMerger(2);
+      this.inputs[0].ref = this.audioCtx.createGain();
+      this.inputs[1].ref = this.audioCtx.createGain();
+      this.inputs[0].ref.connect(this.merger, 0, 0);
+      this.inputs[1].ref.connect(this.merger, 0, 1);
+    }
     this.merger.connect(this.outputs[0].ref);
 
     this.setupUI();
