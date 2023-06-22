@@ -60,6 +60,6 @@
   },
   "browser": "./dist/visual.js",
   "peerDependencies": {
-    "flow-connect": "^2.0.5"
+    "flow-connect": "^2.0.6"
   }
 }

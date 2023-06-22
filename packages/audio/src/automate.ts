@@ -44,7 +44,7 @@ export class Automate extends Node {
     super();
   }
 
-  protected setupIO(_options: AutomateOptions): void {
+  protected setupIO(_options: NodeOptions): void {
     this.addTerminal({
       type: TerminalType.IN,
       name: "trigger",
@@ -57,14 +57,8 @@ export class Automate extends Node {
     });
   }
 
-  protected created(options: AutomateOptions = DefaultAutomateOptions()): void {
-    const {
-      width = 280,
-      state = {},
-      style = {},
-      name = "Automate",
-      envelope = [Vector.create(0.2, 0.5), Vector.create(0.5, 0.8), Vector.create(0.9, 0.2)],
-    } = options;
+  protected created(options: NodeOptions): void {
+    const { width = 280, state = {}, style = {}, name = "Automate" } = options;
 
     this.width = width;
     this.name = name;
@@ -79,7 +73,7 @@ export class Automate extends Node {
     this.setMinMax();
     this.outputs[0].ref = this.proxyParamNode;
 
-    this.setupUI(envelope);
+    this.setupUI();
     this.setupListeners();
   }
 
@@ -88,10 +82,9 @@ export class Automate extends Node {
   setMinMax() {
     this.proxyParamNode.port.postMessage({ type: "set-range", value: { min: this.state.min, max: this.state.max } });
   }
-  setupUI(envelope: Vector[]) {
+  setupUI() {
     this.envelopeInput = this.createUI("core/envelope", {
       height: 145,
-      values: envelope,
       input: true,
       output: true,
       propName: "envelope",
@@ -226,15 +219,6 @@ export class Automate extends Node {
     this.scheduleEndTime = time + values[values.length - 1].x;
   }
 }
-
-export interface AutomateOptions extends NodeOptions {
-  envelope: Vector[];
-}
-
-const DefaultAutomateOptions = (): AutomateOptions => ({
-  name: "Automate",
-  envelope: [Vector.create(0.2, 0.5), Vector.create(0.5, 0.8), Vector.create(0.9, 0.2)],
-});
 
 export interface AutomateStyle extends NodeStyle {}
 
