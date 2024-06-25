@@ -10,13 +10,13 @@
   "types": "dist/types/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/saurabh-prosoft/flow-connect-standard-nodes.git",
+    "url": "git+https://github.com/bhagatsaurabh/flow-connect-standard-nodes.git",
     "directory": "packages/common"
   },
   "bugs": {
-    "url": "https://github.com/saurabh-prosoft/flow-connect-standard-nodes/issues"
+    "url": "https://github.com/bhagatsaurabh/flow-connect-standard-nodes/issues"
   },
-  "author": "saurabh-prosoft <saurabhbhagat98die@gmail.com>",
+  "author": "bhagatsaurabh <saurabhbhagat98die@gmail.com>",
   "homepage": "https://flow-connect.saurabhagat.me/reference/standard-nodes/common.html",
   "license": "MIT",
   "keywords": [
