@@ -1,7 +1,6 @@
-import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
+import { Flow, Node, NodeOptions, TerminalType, NodeStyle } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
-import { InputType, Input, Slider, Toggle } from "flow-connect/ui";
+import { InputType, Input, Slider, Toggle, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect/ui";
 
 export class StereoPanner extends Node {
   panSlider: Slider;
@@ -11,41 +10,44 @@ export class StereoPanner extends Node {
   inGain: GainNode;
   outGain: GainNode;
 
-  static DefaultState = { pan: 0, bypass: false };
+  get audioCtx(): AudioContext {
+    return this.flow.flowConnect.audioContext;
+  }
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(
-      flow, options.name || 'Stereo Panner',
-      options.position || new Vector(50, 50),
-      options.width || 200,
-      [{ name: 'in', dataType: 'audio' }],
-      [{ name: 'out', dataType: 'audio' }],
-      {
-        style: options.style || { rowHeight: 10, spacing: 10 },
-        terminalStyle: options.terminalStyle || {},
-        state: options.state ? { ...StereoPanner.DefaultState, ...options.state } : StereoPanner.DefaultState
-      }
-    )
+  private static DefaultState = { pan: 0, bypass: false };
 
-    this.inGain = flow.flowConnect.audioContext.createGain();
-    this.outGain = flow.flowConnect.audioContext.createGain();
-    this.panner = new StereoPannerNode(flow.flowConnect.audioContext);
-    this.panner.pan.value = this.state.pan;
+  constructor() {
+    super();
+  }
+
+  protected setupIO(_options: StereoPannerOptions): void {
+    this.addTerminals([
+      { type: TerminalType.IN, name: "in", dataType: "audio" },
+      { type: TerminalType.OUT, name: "out", dataType: "audio" },
+    ]);
+  }
+
+  protected created(options: StereoPannerOptions): void {
+    const { width = 200, name = "Stereo Panner", state = {}, style = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.state = { ...StereoPanner.DefaultState, ...state };
+    this.style = { ...DefaultStereoPannerStyle(), ...style };
+
+    this.inGain = this.audioCtx.createGain();
+    this.outGain = this.audioCtx.createGain();
+    this.panner = new StereoPannerNode(this.audioCtx);
+    this.panner.pan.value = clamp(this.state.pan, -1, 1);
     this.inputs[0].ref = this.inGain;
     this.outputs[0].ref = this.outGain;
 
     this.setBypass();
-
     this.setupUI();
-
-    this.watch('pan', (_oldVal, newVal) => {
-      if (newVal < -1 || newVal > 1) this.state.pan = clamp(newVal, -1, 1);
-      this.panner.pan.value = this.state.pan;
-    });
-    this.watch('bypass', this.setBypass.bind(this));
-
-    this.handleAudioConnections();
+    this.setupListeners();
   }
+
+  protected process(_inputs: any[]): void {}
 
   setBypass() {
     if (!this.state.bypass) {
@@ -58,18 +60,47 @@ export class StereoPanner extends Node {
       this.inGain.connect(this.outGain);
     }
   }
-
   setupUI() {
-    this.panSlider = this.createSlider(-1, 1, { height: 10, propName: 'pan', style: { grow: .5 } });
-    this.panInput = this.createInput({ propName: 'pan', height: 20, style: { type: InputType.Number, grow: .2, precision: 2 } });
-    this.bypassToggle = this.createToggle({ propName: 'bypass', style: { grow: .15 } });
+    this.panSlider = this.createUI("core/slider", {
+      min: -1,
+      max: 1,
+      height: 10,
+      propName: "pan",
+      style: { grow: 0.5 },
+    });
+    this.panInput = this.createUI("core/input", {
+      propName: "pan",
+      height: 20,
+      style: { type: InputType.Number, grow: 0.2, precision: 2 },
+    });
+    this.bypassToggle = this.createUI("core/toggle", { propName: "bypass", style: { grow: 0.15 } });
     this.ui.append([
-      this.createHozLayout([this.createLabel('Pan', { style: { grow: .3 } }), this.panSlider, this.panInput], { style: { spacing: 5 } }),
-      this.createHozLayout([this.createLabel('Bypass ?', { style: { grow: .3 } }), this.bypassToggle], { style: { spacing: 5 } })
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [this.createUI("core/label", { text: "Pan", style: { grow: 0.3 } }), this.panSlider, this.panInput],
+        style: { spacing: 5 },
+      }),
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [this.createUI("core/label", { text: "Bypass ?", style: { grow: 0.3 } }), this.bypassToggle],
+        style: { spacing: 5 },
+      }),
     ]);
   }
-  handleAudioConnections() {
-    this.outputs[0].on('connect', (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
-    this.outputs[0].on('disconnect', (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
+  setupListeners() {
+    this.watch("pan", (_oldVal, newVal) => {
+      this.panner.pan.value = clamp(newVal, -1, 1);
+    });
+    this.watch("bypass", this.setBypass.bind(this));
+
+    this.outputs[0].on("connect", (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
+    this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }
 }
+
+export interface StereoPannerOptions extends NodeOptions {}
+
+export interface StereoPannerStyle extends NodeStyle {}
+
+const DefaultStereoPannerStyle = (): StereoPannerStyle => ({
+  rowHeight: 10,
+  spacing: 10,
+});

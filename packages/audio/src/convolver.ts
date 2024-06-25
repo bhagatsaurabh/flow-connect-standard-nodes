@@ -1,45 +1,53 @@
-import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
-import { Toggle } from "flow-connect/ui";
+import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { HorizontalLayout, HorizontalLayoutOptions, Label, LabelOptions, Toggle } from "flow-connect/ui";
 
 export class Convolver extends Node {
-  bypassToggle: Toggle
+  bypassToggle: Toggle;
 
   inGain: GainNode;
   outGain: GainNode;
   convolver: ConvolverNode;
 
-  static DefaultState = { bypass: false };
+  get audioCtx(): AudioContext {
+    return this.flow.flowConnect.audioContext;
+  }
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Convolver', options.position || new Vector(50, 50), options.width || 160,
-      [{ name: 'in', dataType: 'audio' }, { name: 'impulse', dataType: 'audio-buffer' }],
-      [{ name: 'out', dataType: 'audio' }],
-      {
-        state: options.state ? { ...Convolver.DefaultState, ...options.state } : Convolver.DefaultState,
-        style: options.style || { rowHeight: 10, spacing: 10 },
-        terminalStyle: options.terminalStyle || {}
-      }
-    );
+  private static DefaultState = { bypass: false };
 
-    this.inGain = flow.flowConnect.audioContext.createGain();
-    this.outGain = flow.flowConnect.audioContext.createGain();
-    this.convolver = flow.flowConnect.audioContext.createConvolver();
+  constructor() {
+    super();
+  }
+
+  protected setupIO(_options: ConvolverOptions): void {
+    this.addTerminals([
+      { type: TerminalType.IN, name: "in", dataType: "audio" },
+      { type: TerminalType.IN, name: "impulse", dataType: "audio-buffer" },
+      { type: TerminalType.OUT, name: "out", dataType: "audio" },
+    ]);
+  }
+
+  protected created(options: ConvolverOptions): void {
+    const { width = 160, name = "Convolver", state = {}, style = {} } = options;
+
+    this.name = name;
+    this.width = width;
+    this.state = { ...Convolver.DefaultState, ...state };
+    this.style = { ...DefaultConvolverStyle(), ...style };
+
+    this.inGain = this.audioCtx.createGain();
+    this.outGain = this.audioCtx.createGain();
+    this.convolver = this.audioCtx.createConvolver();
 
     this.inputs[0].ref = this.inGain;
     this.outputs[0].ref = this.outGain;
 
     this.setBypass();
-
     this.setupUI();
-
-    this.watch('bypass', () => this.setBypass());
-    this.inputs[1].on('data', (_inst, data) => {
-      this.convolver.buffer = data;
-    });
-
-    this.handleAudioConnections();
+    this.setupListeners();
   }
+
+  protected process(_inputs: any[]): void {}
+
   setBypass() {
     if (!this.state.bypass) {
       this.inGain.disconnect();
@@ -52,14 +60,31 @@ export class Convolver extends Node {
     }
   }
   setupUI() {
-    this.bypassToggle = this.createToggle({ propName: 'bypass', style: { grow: .25 } });
+    this.bypassToggle = this.createUI("core/toggle", { propName: "bypass", style: { grow: 0.25 } });
     this.ui.append([
-      this.createHozLayout([this.createLabel('Bypass ?'), this.bypassToggle], { style: { spacing: 5 } })
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [this.createUI<Label, LabelOptions>("core/label", { text: "Bypass ?" }), this.bypassToggle],
+        style: { spacing: 5 },
+      }),
     ]);
   }
-  handleAudioConnections() {
-    // Handle actual webaudio node stuff
-    this.outputs[0].on('connect', (_, connector) => this.outputs[0].ref.connect(connector.end.ref));
-    this.outputs[0].on('disconnect', (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
+  setupListeners() {
+    this.watch("bypass", () => this.setBypass());
+
+    this.inputs[1].on("data", (_inst, data) => {
+      this.convolver.buffer = data;
+    });
+
+    this.outputs[0].on("connect", (_, connector) => this.outputs[0].ref.connect(connector.end.ref));
+    this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }
 }
+
+export interface ConvolverOptions extends NodeOptions {}
+
+export interface ConvolverStyle extends NodeStyle {}
+
+const DefaultConvolverStyle = (): ConvolverStyle => ({
+  rowHeight: 10,
+  spacing: 10,
+});

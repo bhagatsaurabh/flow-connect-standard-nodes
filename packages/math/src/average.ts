@@ -1,22 +1,28 @@
-import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
+import { Flow, Vector, Node, NodeOptions, TerminalType } from "flow-connect/core";
 
 export class Average extends Node {
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Average', options.position || new Vector(50, 50), options.width || 120,
-      [{ name: 'n', dataType: 'any' }],
-      [{ name: 'μ', dataType: 'any' }],
-      {
-        state: options.state ? { ...options.state } : {},
-        style: options.style || { rowHeight: 10 },
-        terminalStyle: options.terminalStyle || {}
-      }
-    );
+  constructor() {
+    super();
+  }
 
-    this.on('process', (_, inputs) => {
-      if (Array.isArray(inputs[0])) {
-        this.setOutputs(0, inputs[0].reduce((acc, curr) => acc + curr, 0) / inputs[0].length);
-      }
-    });
+  protected setupIO(): void {
+    this.addTerminals([
+      { type: TerminalType.IN, name: "n", dataType: "any" },
+      { type: TerminalType.OUT, name: "μ", dataType: "any" },
+    ]);
+  }
+
+  protected created(options: NodeOptions): void {
+    const { width = 120, name = "Average", style = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.style = { rowHeight: 10, ...style };
+  }
+
+  protected process(inputs: any[]): void {
+    if (Array.isArray(inputs[0])) {
+      this.setOutputs(0, inputs[0].reduce((acc, curr) => acc + curr, 0) / inputs[0].length);
+    }
   }
 }

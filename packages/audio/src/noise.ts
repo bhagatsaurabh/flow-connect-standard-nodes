@@ -1,60 +1,87 @@
-import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
-import { Select } from "flow-connect/ui";
+import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
+import { HorizontalLayout, HorizontalLayoutOptions, Select } from "flow-connect/ui";
 
 export class Noise extends Node {
-  noiseSelect: Select
+  noiseSelect: Select;
   noise: AudioWorkletNode;
   outGain: GainNode;
 
-  static DefaultState = { type: 'white' };
+  get audioCtx(): AudioContext {
+    return this.flow.flowConnect.audioContext;
+  }
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(
-      flow, options.name || 'Noise',
-      options.position || new Vector(50, 50),
-      options.width || 170, [],
-      [{ name: 'out', dataType: 'audio' }],
-      {
-        style: options.style || { rowHeight: 10, spacing: 10 },
-        terminalStyle: options.terminalStyle || {},
-        state: options.state ? { ...Noise.DefaultState, ...options.state } : Noise.DefaultState
-      }
-    )
+  private static DefaultState = { type: "white" };
 
-    this.outGain = flow.flowConnect.audioContext.createGain();
+  constructor() {
+    super();
+  }
+
+  protected setupIO(_options: NoiseOptions): void {
+    this.addTerminals([{ type: TerminalType.OUT, name: "out", dataType: "audio" }]);
+  }
+
+  protected created(options: NoiseOptions): void {
+    const { width = 170, name = "Noise", state = {}, style = {} } = options;
+
+    this.name = name;
+    this.width = width;
+    this.state = { ...Noise.DefaultState, ...state };
+    this.style = { ...DefaultNoiseStyle(), ...style };
+
+    this.outGain = this.audioCtx.createGain();
     this.outputs[0].ref = this.outGain;
 
-    this.noise = new AudioWorkletNode(flow.flowConnect.audioContext, 'noise', {
-      channelCount: 1, channelCountMode: 'explicit', outputChannelCount: [1], numberOfInputs: 1, numberOfOutputs: 1
+    this.noise = new AudioWorkletNode(this.audioCtx, "noise", {
+      channelCount: 1,
+      channelCountMode: "explicit",
+      outputChannelCount: [1],
+      numberOfInputs: 1,
+      numberOfOutputs: 1,
     });
     this.noise.port.postMessage(this.state.type);
 
     this.setupUI();
-
-    this.watch('type', (_oldVal, newVal) => {
-      if (!this.noiseSelect.values.includes(newVal)) newVal = 'white';
-      this.noise.port.postMessage(newVal);
-    });
-
-    this.handleAudioConnections();
-
-    this.flow.flowConnect.on('start', () => {
-      this.noise.connect(this.outGain);
-    });
-    this.flow.flowConnect.on('stop', () => {
-      this.noise.disconnect();
-    });
+    this.setupListeners();
   }
+
+  protected process(_inputs: any[]): void {}
 
   setupUI() {
-    this.noiseSelect = this.createSelect(['white', 'pink', 'brownian'], { height: 15, propName: 'type', style: { grow: .7 } });
+    this.noiseSelect = this.createUI("core/select", {
+      values: ["white", "pink", "brownian"],
+      height: 15,
+      propName: "type",
+      style: { grow: 0.7 },
+    });
     this.ui.append([
-      this.createHozLayout([this.createLabel('Type', { style: { grow: .3 } }), this.noiseSelect], { style: { spacing: 5 } })
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [this.createUI("core/label", { text: "Type", style: { grow: 0.3 } }), this.noiseSelect],
+        style: { spacing: 5 },
+      }),
     ]);
   }
-  handleAudioConnections() {
-    this.outputs[0].on('connect', (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
-    this.outputs[0].on('disconnect', (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
+  setupListeners() {
+    this.watch("type", (_oldVal, newVal) =>
+      this.noise.port.postMessage(!this.noiseSelect.values.includes(newVal) ? "white" : newVal)
+    );
+
+    this.flow.on("start", () => {
+      this.noise.connect(this.outGain);
+    });
+    this.flow.on("stop", () => {
+      this.noise.disconnect();
+    });
+
+    this.outputs[0].on("connect", (_inst, connector) => this.outputs[0].ref.connect(connector.end.ref));
+    this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }
 }
+
+export interface NoiseOptions extends NodeOptions {}
+
+export interface NoiseStyle extends NodeStyle {}
+
+const DefaultNoiseStyle = (): NoiseStyle => ({
+  rowHeight: 10,
+  spacing: 10,
+});

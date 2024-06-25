@@ -1,7 +1,6 @@
-import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
+import { Flow, Node, NodeOptions, NodeStyle, TerminalType } from "flow-connect/core";
 import { clamp } from "flow-connect/utils";
-import { Toggle } from "flow-connect/ui";
+import { HorizontalLayout, HorizontalLayoutOptions, Toggle } from "flow-connect/ui";
 
 export class DynamicsCompressor extends Node {
   bypassToggle: Toggle;
@@ -10,24 +9,36 @@ export class DynamicsCompressor extends Node {
   outGain: GainNode;
   compressor: DynamicsCompressorNode;
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Dynamics Compressor', options.position || new Vector(50, 50), options.width || 230,
-      [
-        { name: 'in', dataType: 'audio' }, { name: 'threshold', dataType: 'audioparam' },
-        { name: 'ratio', dataType: 'audioparam' }, { name: 'knee', dataType: 'audioparam' },
-        { name: 'attack', dataType: 'audioparam' }, { name: 'release', dataType: 'audioparam' }
-      ],
-      [{ name: 'out', dataType: 'audio' }],
-      {
-        state: options.state ? { bypass: false, ...options.state } : { bypass: false },
-        style: options.style || { rowHeight: 10, spacing: 10 },
-        terminalStyle: options.terminalStyle || {}
-      }
-    );
+  get audioCtx(): AudioContext {
+    return this.flow.flowConnect.audioContext;
+  }
 
-    this.inGain = flow.flowConnect.audioContext.createGain();
-    this.outGain = flow.flowConnect.audioContext.createGain();
-    this.compressor = flow.flowConnect.audioContext.createDynamicsCompressor();
+  constructor() {
+    super();
+  }
+
+  protected setupIO(_options: DynamicsCompressorOptions): void {
+    this.addTerminals([
+      { type: TerminalType.IN, name: "in", dataType: "audio" },
+      { type: TerminalType.IN, name: "threshold", dataType: "audioparam" },
+      { type: TerminalType.IN, name: "ratio", dataType: "audioparam" },
+      { type: TerminalType.IN, name: "knee", dataType: "audioparam" },
+      { type: TerminalType.IN, name: "attack", dataType: "audioparam" },
+      { type: TerminalType.IN, name: "release", dataType: "audioparam" },
+      { type: TerminalType.OUT, name: "out", dataType: "audio" },
+    ]);
+  }
+
+  protected created(options: DynamicsCompressorOptions): void {
+    const { width = 230, name = "Dynamics Compressor", state = {}, style = {} } = options;
+    this.width = width;
+    this.name = name;
+    this.state = { bypass: false, ...state };
+    this.style = { ...DefaultDynamicsCompressorStyle(), ...style };
+
+    this.inGain = this.audioCtx.createGain();
+    this.outGain = this.audioCtx.createGain();
+    this.compressor = this.audioCtx.createDynamicsCompressor();
     this.compressor.threshold.value = -20;
     this.compressor.ratio.value = 4;
     this.compressor.knee.value = 5;
@@ -42,20 +53,21 @@ export class DynamicsCompressor extends Node {
     this.inputs[5].ref = this.compressor.release;
     this.outputs[0].ref = this.outGain;
 
-    this.inputs[1].on('data', (_, data) => typeof data === 'number' && (this.inputs[1].ref.value = clamp(data, -100, 0)));
-    this.inputs[2].on('data', (_, data) => typeof data === 'number' && (this.inputs[2].ref.value = clamp(data, 1, 20)));
-    this.inputs[3].on('data', (_, data) => typeof data === 'number' && (this.inputs[3].ref.value = clamp(data, 0, 40)));
-    this.inputs[4].on('data', (_, data) => typeof data === 'number' && (this.inputs[4].ref.value = clamp(data, 0, 1)));
-    this.inputs[5].on('data', (_, data) => typeof data === 'number' && (this.inputs[5].ref.value = clamp(data, 0, 1)));
+    this.inputs[1].on(
+      "data",
+      (_, data) => typeof data === "number" && (this.inputs[1].ref.value = clamp(data, -100, 0))
+    );
+    this.inputs[2].on("data", (_, data) => typeof data === "number" && (this.inputs[2].ref.value = clamp(data, 1, 20)));
+    this.inputs[3].on("data", (_, data) => typeof data === "number" && (this.inputs[3].ref.value = clamp(data, 0, 40)));
+    this.inputs[4].on("data", (_, data) => typeof data === "number" && (this.inputs[4].ref.value = clamp(data, 0, 1)));
+    this.inputs[5].on("data", (_, data) => typeof data === "number" && (this.inputs[5].ref.value = clamp(data, 0, 1)));
 
     this.setBypass();
-
     this.setupUI();
-
-    this.watch('bypass', () => this.setBypass());
-
-    this.handleAudioConnections();
+    this.setupListeners();
   }
+
+  protected process(_inputs: any[]): void {}
 
   setBypass() {
     if (this.state.bypass) {
@@ -69,14 +81,27 @@ export class DynamicsCompressor extends Node {
     }
   }
   setupUI() {
-    this.bypassToggle = this.createToggle({ propName: 'bypass', style: { grow: .1 } });
+    this.bypassToggle = this.createUI("core/toggle", { propName: "bypass", style: { grow: 0.1 } });
     this.ui.append([
-      this.createHozLayout([this.createLabel('Bypass ?', { style: { grow: .3 } }), this.bypassToggle], { style: { spacing: 5 } })
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [this.createUI("core/label", { text: "Bypass ?", style: { grow: 0.3 } }), this.bypassToggle],
+        style: { spacing: 5 },
+      }),
     ]);
   }
-  handleAudioConnections() {
-    // Handle actual webaudio node stuff
-    this.outputs[0].on('connect', (_, connector) => this.outputs[0].ref.connect(connector.end.ref));
-    this.outputs[0].on('disconnect', (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
+  setupListeners() {
+    this.watch("bypass", () => this.setBypass());
+
+    this.outputs[0].on("connect", (_, connector) => this.outputs[0].ref.connect(connector.end.ref));
+    this.outputs[0].on("disconnect", (_inst, _connector, _start, end) => this.outputs[0].ref.disconnect(end.ref));
   }
 }
+
+export interface DynamicsCompressorOptions extends NodeOptions {}
+
+export interface DynamicsCompressorStyle extends NodeStyle {}
+
+const DefaultDynamicsCompressorStyle = (): DynamicsCompressorStyle => ({
+  rowHeight: 10,
+  spacing: 10,
+});

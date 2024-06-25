@@ -1,46 +1,76 @@
-import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions, GlobalEventType } from "flow-connect/common";
-import { get, getNewUUID } from "flow-connect/utils";
-import { InputType, Input } from "flow-connect/ui";
+import { Node, NodeOptions, TerminalType } from "flow-connect/core";
+import { GlobalEventType } from "flow-connect/common";
+import { uuid } from "flow-connect/utils";
+import { InputType, Input, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect/ui";
 
 export class GlobalEvent extends Node {
   eventInput: Input;
+  globalEventName: string;
+  globalEventType: GlobalEventType;
+  eventId = -1;
 
-  static DefaultState = { prevEvent: '', eventId: -1 };
+  static DefaultState = { name: uuid() };
 
-  constructor(flow: Flow, type: GlobalEventType, name: string, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Global Event', options.position || new Vector(50, 50), options.width || 150,
-      type === GlobalEventType.Emitter ? [{ name: 'emit', dataType: 'event' }] : [],
-      type === GlobalEventType.Receiver ? [{ name: 'receive', dataType: 'event' }] : [],
+  constructor() {
+    super();
+  }
+
+  protected setupIO(options: GlobalEventOptions): void {
+    this.addTerminals([
       {
-        state: options.state ? { ...GlobalEvent.DefaultState, ...options.state } : GlobalEvent.DefaultState,
-        style: options.style || { rowHeight: 10 },
-        terminalStyle: options.terminalStyle || {}
-      }
-    );
+        type: options.globalEventType === GlobalEventType.Emitter ? TerminalType.IN : TerminalType.OUT,
+        name: options.globalEventType === GlobalEventType.Emitter ? "emit" : "receive",
+        dataType: "event",
+      },
+    ]);
+  }
 
-    this.state.prevEvent = name;
-    this.state.name = get(name, getNewUUID());
+  protected created(options: GlobalEventOptions): void {
+    this.globalEventName = options.globalEventName;
+    this.globalEventType = options.globalEventType;
+
+    const { width = 150, name = "Global Event", style = {}, state = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.style = { rowHeight: 10, ...style };
+    this.state = { ...GlobalEvent.DefaultState, ...state };
 
     this.setupUI();
-
-    if (type === GlobalEventType.Emitter) {
-      this.inputs[0].on('event', (_, data) => flow.globalEvents.call(this.state.name, data));
-    } else {
-      this.state.eventId = flow.globalEvents.on(this.state.name, data => this.outputs[0].emit(data));
-
-      this.on('change', (_, __, prevVal) => {
-        flow.globalEvents.off(prevVal, this.state.eventId);
-        this.state.eventId = flow.globalEvents.on(this.state.name, data => this.outputs[0].emit(data));
-      });
-    }
+    this.setupListeners();
   }
+
+  protected process(): void {}
 
   setupUI() {
-    this.eventInput = this.createInput({ propName: 'name', height: 20, style: { type: InputType.Text, grow: .6 } });
-    this.ui.append(this.createHozLayout([
-      this.createLabel('Event', { style: { grow: .4 } }),
-      this.eventInput
-    ], { style: { spacing: 10 } }));
+    this.eventInput = this.createUI("core/input", {
+      propName: "name",
+      height: 20,
+      style: { type: InputType.Text, grow: 0.6 },
+    });
+
+    this.ui.append(
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [this.createUI("core/label", { text: "Event", style: { grow: 0.4 } }), this.eventInput],
+        style: { spacing: 10 },
+      })
+    );
   }
+  setupListeners() {
+    if (this.globalEventType === GlobalEventType.Emitter) {
+      this.inputs[0].on("event", (_, data) => this.flow.globalEvents.call(this.state.name, data));
+    } else {
+      this.eventId = this.flow.globalEvents.on(this.state.name, (data) => this.outputs[0].emit(data));
+    }
+
+    this.watch("name", (prevVal) => {
+      this.flow.globalEvents.off(prevVal, this.eventId);
+      this.eventId = this.flow.globalEvents.on(this.state.name, (data) => this.outputs[0].emit(data));
+    });
+  }
+}
+
+export interface GlobalEventOptions extends NodeOptions {
+  globalEventType: GlobalEventType;
+  globalEventName: string;
 }

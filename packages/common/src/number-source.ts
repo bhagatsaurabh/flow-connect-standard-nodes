@@ -1,6 +1,5 @@
-import { Flow, Vector, Node } from "flow-connect/core";
-import { NodeCreatorOptions } from "flow-connect/common";
-import { InputType, Input, Toggle } from "flow-connect/ui";
+import { Node, NodeOptions, TerminalType } from "flow-connect/core";
+import { InputType, Input, Toggle, HorizontalLayout, HorizontalLayoutOptions } from "flow-connect/ui";
 
 export class NumberSource extends Node {
   fractionalToggle: Toggle;
@@ -8,40 +7,63 @@ export class NumberSource extends Node {
 
   static DefaultState = { fractional: false, value: 0 };
 
-  constructor(flow: Flow, options: NodeCreatorOptions = {}) {
-    super(flow, options.name || 'Number Source', options.position || new Vector(50, 50), options.width || 160, [],
-      [{ name: 'value', dataType: 'number' }],
-      {
-        state: options.state ? { ...NumberSource.DefaultState, ...options.state } : NumberSource.DefaultState,
-        style: options.style || { rowHeight: 10 },
-        terminalStyle: options.terminalStyle || {}
-      }
-    );
-
-    this.setupUI();
-
-    this.fractionalToggle.on('change', (_inst, _oldVal, newVal) => {
-      this.input.style.step = newVal ? 'any' : '';
-      if (!newVal) this.state.value = Math.floor(this.state.value);
-      this.process();
-    });
-    this.input.on('change', () => {
-      if (!this.state.fractional) this.state.value = Math.floor(this.state.value);
-      this.process();
-    });
-    this.outputs[0].on('connect', () => this.process());
-    this.on('process', () => this.process());
+  constructor() {
+    super();
   }
 
-  process() { this.setOutputs(0, this.state.fractional ? this.state.value : Math.floor(this.state.value)); }
+  protected setupIO(): void {
+    this.addTerminals([{ type: TerminalType.OUT, name: "value", dataType: "number" }]);
+  }
+
+  protected created(options: NodeOptions): void {
+    const { width = 160, name = "Number Source", state = {}, style = {} } = options;
+
+    this.width = width;
+    this.name = name;
+    this.state = { ...NumberSource.DefaultState, ...state };
+    this.style = { rowHeight: 10, ...style };
+
+    this.setupUI();
+    this.setupListeners();
+  }
+
+  protected process() {
+    this.input.style.step = this.state.fractional ? "any" : "";
+    this.setOutputs(0, this.state.fractional ? this.state.value : Math.floor(this.state.value));
+  }
+
   setupUI() {
-    this.fractionalToggle = this.createToggle({ propName: 'fractional', input: true, output: true, height: 10, style: { grow: .2 } });
-    this.input = this.createInput({
-      value: 0, propName: 'value', input: true, output: true, height: 20, style: { type: InputType.Number, grow: .6, step: this.state.fractional ? 'any' : '' }
-    })
+    this.fractionalToggle = this.createUI("core/toggle", {
+      propName: "fractional",
+      input: true,
+      output: true,
+      height: 10,
+      style: { grow: 0.2 },
+    });
+    this.input = this.createUI("core/input", {
+      value: 0,
+      propName: "value",
+      input: true,
+      output: true,
+      height: 20,
+      style: { type: InputType.Number, grow: 0.6, step: this.state.fractional ? "any" : "" },
+    });
     this.ui.append([
-      this.createHozLayout([this.createLabel('Value', { style: { grow: .4 } }), this.input], { style: { spacing: 20 } }),
-      this.createHozLayout([this.createLabel('Fractional ?', { style: { grow: .5 } }), this.fractionalToggle], { style: { spacing: 20 } }),
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [this.createUI("core/label", { text: "Value", style: { grow: 0.4 } }), this.input],
+        style: { spacing: 20 },
+      }),
+      this.createUI<HorizontalLayout, HorizontalLayoutOptions>("core/x-layout", {
+        childs: [this.createUI("core/label", { text: "Fractional ?", style: { grow: 0.5 } }), this.fractionalToggle],
+        style: { spacing: 20 },
+      }),
     ]);
+  }
+  setupListeners() {
+    this.watch("fractional", () => this.process());
+    this.watch("value", () => this.process());
+
+    this.outputs[0].on("connect", () => this.process());
+    this.on("process", () => this.process());
   }
 }
