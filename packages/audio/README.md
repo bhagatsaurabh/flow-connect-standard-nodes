@@ -1,7 +1,7 @@
 ## @flow-connect/audio
 
 [<img alt="npm (scoped)" src="https://img.shields.io/npm/v/@flow-connect/audio?style=flat-square" />](https://www.npmjs.com/package/@flow-connect/audio)
-[<img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/saurabh-prosoft/flow-connect-standard-nodes/audio.yml?style=flat-square" />](https://github.com/saurabh-prosoft/flow-connect-standard-nodes/actions/workflows/audio.yml)
+[<img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/bhagatsaurabh/flow-connect-standard-nodes/audio.yml?style=flat-square" />](https://github.com/bhagatsaurabh/flow-connect-standard-nodes/actions/workflows/audio.yml)
 [<img alt="npm bundle size (scoped)" src="https://img.shields.io/bundlephobia/min/@flow-connect/audio?style=flat-square">](https://bundlephobia.com/package/@flow-connect/audio)
 
 <br/>

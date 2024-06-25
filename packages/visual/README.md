@@ -1,7 +1,7 @@
 ## @flow-connect/visual
 
 [<img alt="npm (scoped)" src="https://img.shields.io/npm/v/@flow-connect/visual?style=flat-square" />](https://www.npmjs.com/package/@flow-connect/visual)
-[<img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/saurabh-prosoft/flow-connect-standard-nodes/visual.yml?style=flat-square" />](https://github.com/saurabh-prosoft/flow-connect-standard-nodes/actions/workflows/visual.yml)
+[<img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/bhagatsaurabh/flow-connect-standard-nodes/visual.yml?style=flat-square" />](https://github.com/bhagatsaurabh/flow-connect-standard-nodes/actions/workflows/visual.yml)
 [<img alt="npm bundle size (scoped)" src="https://img.shields.io/bundlephobia/min/@flow-connect/visual?style=flat-square">](https://bundlephobia.com/package/@flow-connect/visual)
 
 <br/>
